@@ -1,0 +1,418 @@
+openapi: 3.0.3
+info:
+  title: Sistema de Triage y Gestión de Solicitudes Académicas
+  version: 1.0.0
+  description: API REST para la gestión del ciclo de vida de solicitudes académicas.
+
+servers:
+  - url: http://localhost:8080/api
+
+tags:
+  - name: Solicitudes
+  - name: Historial
+  - name: Autenticación
+
+security:
+  - bearerAuth: []
+
+paths:
+
+  /solicitudes:
+    post:
+      tags: [Solicitudes]
+      summary: Registrar una nueva solicitud
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrearSolicitudRequest'
+      responses:
+        "201":
+          description: Solicitud registrada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolicitudResponse'
+        "400":
+          description: Datos inválidos
+        "401":
+          description: No autorizado
+
+    get:
+      tags: [Solicitudes]
+      summary: Consultar solicitudes con filtros
+      parameters:
+        - in: query
+          name: estado
+          schema:
+            $ref: '#/components/schemas/EstadoSolicitud'
+        - in: query
+          name: tipo
+          schema:
+            $ref: '#/components/schemas/TipoSolicitud'
+        - in: query
+          name: prioridad
+          schema:
+            $ref: '#/components/schemas/Prioridad'
+        - in: query
+          name: idResponsable
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Lista de solicitudes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SolicitudResponse'
+        "400":
+          description: Datos inválidos
+        "401":
+          description: No autorizado
+
+  /solicitudes/{id}:
+    get:
+      tags: [Solicitudes]
+      summary: Obtener detalle de una solicitud
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Detalle de la solicitud
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolicitudResponse'
+        "404":
+          description: Solicitud no encontrada
+        "400":
+          description: Datos inválidos
+        "401":
+          description: No autorizado
+
+  /solicitudes/{id}/estado:
+    patch:
+      tags: [Solicitudes]
+      summary: Cambiar estado de la solicitud
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CambiarEstadoRequest'
+      responses:
+        "200":
+          description: Estado actualizado
+        "400":
+          description: Transición inválida
+        "401":
+          description: No autorizado
+
+  /solicitudes/{id}/cerrar:
+    patch:
+      tags: [Solicitudes]
+      summary: Cerrar una solicitud
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CerrarSolicitudRequest'
+      responses:
+        "200":
+          description: Solicitud cerrada
+        "400":
+          description: No cumple condiciones de cierre
+        "401":
+          description: No autorizado
+
+  /solicitudes/{id}/historial:
+    get:
+      tags: [Historial]
+      summary: Obtener historial de una solicitud
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Historial de la solicitud
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HistorialSolicitudResponse'
+        "400":
+          description: Datos inválidos
+        "401":
+          description: No autorizado
+
+  /autenticacion/registro:
+    post:
+      tags: [Autenticación]
+      summary: Registrar usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistroUsuarioRequest'
+      responses:
+        "201":
+          description: Usuario registrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        "400":
+          description: Datos inválidos
+        "409":
+          description: Usuario ya existe
+
+  /autenticacion/iniciar-sesion:
+    post:
+      tags: [Autenticación]
+      summary: Autenticar usuario y obtener JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        "200":
+          description: Autenticación exitosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        "401":
+          description: Credenciales inválidas
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    CrearSolicitudRequest:
+      type: object
+      required:
+        - idUsuario
+        - tipo
+        - descripcion
+        - canalOrigen
+      properties:
+        idUsuario:
+          type: string
+          format: uuid
+        tipo:
+          $ref: '#/components/schemas/TipoSolicitud'
+        descripcion:
+          type: string
+        canalOrigen:
+          $ref: '#/components/schemas/CanalOrigen'
+
+    CambiarEstadoRequest:
+      type: object
+      required:
+        - nuevoEstado
+      properties:
+        nuevoEstado:
+          $ref: '#/components/schemas/EstadoSolicitud'
+        observaciones:
+          type: string
+
+    CerrarSolicitudRequest:
+      type: object
+      required:
+        - observacionCierre
+      properties:
+        observacionCierre:
+          type: string
+
+    SolicitudResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        idUsuario:
+          type: string
+          format: uuid
+        idResponsable:
+          type: string
+          format: uuid
+        tipo:
+          $ref: '#/components/schemas/TipoSolicitud'
+        descripcion:
+          type: string
+        canalOrigen:
+          $ref: '#/components/schemas/CanalOrigen'
+        fechaRegistro:
+          type: string
+          format: date-time
+        estado:
+          $ref: '#/components/schemas/EstadoSolicitud'
+        prioridad:
+          $ref: '#/components/schemas/Prioridad'
+        justificacionPrioridad:
+          type: string
+        observacionCierre:
+          type: string
+
+    HistorialSolicitudResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        idSolicitud:
+          type: string
+          format: uuid
+        fechaCreacion:
+          type: string
+          format: date-time
+        accion:
+          type: string
+        observaciones:
+          type: string
+
+    RegistroUsuarioRequest:
+      type: object
+      required:
+        - identificacion
+        - nombre
+        - correo
+        - contrasena
+        - rol
+      properties:
+        identificacion:
+          type: string
+        nombre:
+          type: string
+        correo:
+          type: string
+          format: email
+        contrasena:
+          type: string
+          format: password
+        rol:
+          $ref: '#/components/schemas/RolUsuario'
+
+    LoginRequest:
+      type: object
+      required:
+        - correo
+        - contrasena
+      properties:
+        correo:
+          type: string
+          format: email
+        contrasena:
+          type: string
+          format: password
+
+    AuthResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        tokenType:
+          type: string
+          example: Bearer
+        expiresIn:
+          type: integer
+        usuario:
+          $ref: '#/components/schemas/UsuarioResumen'
+
+    UsuarioResumen:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        identificacion:
+          type: string
+        nombre:
+          type: string
+        correo:
+          type: string
+        rol:
+          $ref: '#/components/schemas/RolUsuario'
+        activo:
+          type: boolean
+
+    TipoSolicitud:
+      type: string
+      enum:
+        - REGISTRO_ASIGNATURAS
+        - HOMOLOGACION
+        - CANCELACION_ASIGNATURAS
+        - SOLICITUD_CUPOS
+        - CONSULTA_ACADEMICA
+
+    CanalOrigen:
+      type: string
+      enum:
+        - CSU
+        - CORREO
+        - SAC
+        - TELEFONICO
+
+    EstadoSolicitud:
+      type: string
+      enum:
+        - REGISTRADA
+        - CLASIFICADA
+        - EN_ATENCION
+        - ATENDIDA
+        - CERRADA
+
+    Prioridad:
+      type: string
+      enum:
+        - CRITICA
+        - ALTA
+        - MEDIA
+        - BAJA
+
+    RolUsuario:
+      type: string
+      enum:
+        - ESTUDIANTE
+        - ADMINISTRATIVO
+        - DIRECTOR
