@@ -198,7 +198,7 @@ paths:
         "409":
           description: Usuario ya existe
 
-  /autenticacion/inciar-sesion:
+  /autenticacion/iniciar-sesion:
     post:
       tags: [Autenticación]
       summary: Autenticar usuario y obtener JWT
