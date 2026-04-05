@@ -19,11 +19,10 @@ public class HistorialSolicitud {
     private LocalDateTime fechaCreacion;
 
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private EstadoSolicitud accion;
+    private String accion;
 
-    @Column(nullable = false)
-    private String descripcion;
+    @Column(name = "observaciones")
+    private String observaciones;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "historial_id")

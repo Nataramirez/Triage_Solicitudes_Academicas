@@ -357,9 +357,9 @@ components:
         expiresIn:
           type: integer
         usuario:
-          $ref: '#/components/schemas/UsuarioResumen'
+          $ref: '#/components/schemas/UsuarioResponse'
 
-    UsuarioResumen:
+    UsuarioResponse:
       type: object
       properties:
         id:

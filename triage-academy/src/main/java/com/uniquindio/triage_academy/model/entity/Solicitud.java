@@ -5,6 +5,9 @@ import com.uniquindio.triage_academy.model.enums.EstadoSolicitud;
 import com.uniquindio.triage_academy.model.enums.Prioridad;
 import com.uniquindio.triage_academy.model.enums.TipoSolicitud;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
@@ -13,6 +16,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Setter
+@Getter
+@NoArgsConstructor
 public class Solicitud {
 
     @Id
@@ -41,11 +47,11 @@ public class Solicitud {
     @Column(nullable = false)
     private String descripcion;
 
-    @Column(nullable = false, name = "justificacion_prioridad")
+    @Column(name = "justificacion_prioridad")
     private String justificacionPrioridad;
 
-    @Column(name = "observaciones_cierre")
-    private String observacionesCierre;
+    @Column(name = "observacion_cierre")
+    private String observacionCierre;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
