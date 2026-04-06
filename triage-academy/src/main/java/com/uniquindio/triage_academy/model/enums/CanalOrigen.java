@@ -4,5 +4,5 @@ public enum CanalOrigen {
     CSU,
     CORREO,
     SAC,
-    TELEFONO
+    TELEFONICO
 }
