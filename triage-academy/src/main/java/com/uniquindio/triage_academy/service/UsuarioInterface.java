@@ -1,4 +1,4 @@
 package com.uniquindio.triage_academy.service;
 
-public interface RequestInterface {
+public interface UsuarioInterface {
 }

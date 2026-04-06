@@ -2,12 +2,16 @@ package com.uniquindio.triage_academy.model.entity;
 
 import com.uniquindio.triage_academy.model.enums.EstadoSolicitud;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
+@Setter
+@Getter
 @Table(name = "historial_solicitud")
 public class HistorialSolicitud {
 
