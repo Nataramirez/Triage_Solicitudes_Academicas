@@ -13,6 +13,7 @@ public class HelperMappers {
                 .rol(usuario.getRol())
                 .correo(usuario.getCorreo())
                 .activo(usuario.isActivo())
+                .nombre(usuario.getNombre())
                 .build();
     }
 }
