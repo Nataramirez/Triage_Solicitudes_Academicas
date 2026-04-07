@@ -4,23 +4,34 @@ import com.uniquindio.triage_academy.model.enums.RolUsuario;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
+@Data
 public class RegistrarUsuarioRequest {
-    @NotBlank
+
+    @NotBlank(message = "La identificación del usuario es requerida")
     private String identificacion;
 
-    @NotBlank
+    @NotBlank(message = "El nombre del usuario es requerido")
     private String nombre;
 
-    @Email
-    @NotBlank
+    @Email(message = "El correo electrónico proporcionado no es válido")
+    @NotBlank(message = "El correo electrónico del usuario es requerido")
     private String correo;
 
-    @NotBlank
+    @NotBlank(message = "La contraseña es requerida")
     private String contrasena;
 
-    @NotNull
+    @NotNull(message = "El rol es requerido")
     private RolUsuario rol;
+
+    @Override
+    public String toString() {
+        return "RegistrarUsuarioRequest{" +
+                "identificacion='" + identificacion + '\'' +
+                ", nombre='" + nombre + '\'' +
+                ", correo='" + correo + '\'' +
+                ", rol=" + rol +
+                '}';
+    }
 }
