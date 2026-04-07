@@ -2,9 +2,10 @@ package com.uniquindio.triage_academy.model.entity;
 
 import com.uniquindio.triage_academy.model.enums.RolUsuario;
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
@@ -13,9 +14,11 @@ import java.util.UUID;
 
 
 @Entity
-@Getter
-@Setter
+@Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "usuario", uniqueConstraints = {@UniqueConstraint(columnNames = {"correo", "identificacion"})})
 public class Usuario {
 
     @Id

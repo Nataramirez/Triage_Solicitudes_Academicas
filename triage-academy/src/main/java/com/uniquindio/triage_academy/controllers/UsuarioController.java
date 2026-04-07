@@ -6,6 +6,4 @@ import org.springframework.stereotype.Controller;
 public class UsuarioController {
 
 
-    public static class SolicitudController {
-    }
 }
