@@ -2,6 +2,7 @@ package com.uniquindio.triage_academy;
 
 import com.uniquindio.triage_academy.model.entity.Usuario;
 import com.uniquindio.triage_academy.repository.UsuarioRepository;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -16,6 +17,8 @@ public class TriageAcademyApplication implements CommandLineRunner {
 	private UsuarioRepository usuarioRepository;
 
 	public static void main(String[] args) {
+		Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+		dotenv.entries().forEach(e -> System.setProperty(e.getKey(), e.getValue()));
 		SpringApplication.run(TriageAcademyApplication.class, args);
 	}
 
