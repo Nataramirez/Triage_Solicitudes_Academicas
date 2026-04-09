@@ -29,6 +29,6 @@ public class HistorialSolicitud {
     private String observaciones;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "historial_id")
+    @JoinColumn(name = "solicitud_id")
     private Solicitud solicitud;
 }

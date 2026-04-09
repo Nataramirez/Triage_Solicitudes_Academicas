@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ import java.util.UUID;
 @Setter
 @Getter
 @NoArgsConstructor
+@ToString
 public class Solicitud {
 
     @Id
@@ -44,7 +46,7 @@ public class Solicitud {
     @Enumerated(EnumType.STRING)
     private Prioridad prioridad;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "descripcion")
     private String descripcion;
 
     @Column(name = "justificacion_prioridad")
