@@ -56,7 +56,8 @@ public class AuthService implements AuthInterface {
     public AuthResponse iniciarSesion(LoginRequest request) throws CustomException {
 
         Optional<Usuario> optionalUsuario = usuarioRepository.findByCorreo(request.getCorreo());
-        Usuario usuario = optionalUsuario.get();
+        Usuario usuario = optionalUsuario.orElseThrow(() ->
+                new CustomException(401, "Credenciales no válidas", null));
 
         if (!passwordHasher.matches(request.getContrasena(), usuario.getContrasena())) {
             throw new CustomException(400, "Credenciales no válidas", null);
