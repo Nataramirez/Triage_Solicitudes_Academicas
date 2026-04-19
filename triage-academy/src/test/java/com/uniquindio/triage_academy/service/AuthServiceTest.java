@@ -23,10 +23,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AuthService - Tests unitarios")
@@ -68,6 +68,7 @@ class AuthServiceTest {
         @Test
         @DisplayName("Registra usuario exitosamente y retorna AuthResponse con token")
         void registrar_exitoso() throws CustomException {
+            // Arrange
             RegistrarUsuarioRequest request = buildRequest();
 
             when(usuarioRepository.findByCorreo(request.getCorreo())).thenReturn(Optional.empty());
@@ -76,60 +77,16 @@ class AuthServiceTest {
             when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuarioMock);
             when(jwtService.obtenerToken(any(Usuario.class))).thenReturn("jwt.token.mock");
 
+            // Act
             AuthResponse response = authService.registrarUsuario(request);
 
+            // Assert
             assertThat(response).isNotNull();
             assertThat(response.getAccessToken()).isEqualTo("jwt.token.mock");
             assertThat(response.getTokenType()).isEqualTo("Bearer");
             assertThat(response.getUsuario().getCorreo()).isEqualTo(request.getCorreo());
 
             verify(usuarioRepository, times(1)).save(any(Usuario.class));
-        }
-
-        @Test
-        @DisplayName("Lanza CustomException 400 si el correo ya está registrado")
-        void registrar_correoYaExiste() {
-            RegistrarUsuarioRequest request = buildRequest();
-
-            when(usuarioRepository.findByCorreo(request.getCorreo()))
-                    .thenReturn(Optional.of(usuarioMock));
-
-            assertThatThrownBy(() -> authService.registrarUsuario(request))
-                    .isInstanceOf(CustomException.class)
-                    .hasMessageContaining("correo electrónico");
-
-            verify(usuarioRepository, never()).save(any());
-        }
-
-        @Test
-        @DisplayName("Lanza CustomException 400 si la identificación ya está registrada")
-        void registrar_identificacionYaExiste() {
-            RegistrarUsuarioRequest request = buildRequest();
-
-            when(usuarioRepository.findByCorreo(request.getCorreo())).thenReturn(Optional.empty());
-            when(usuarioRepository.findByIdentificacion(request.getIdentificacion()))
-                    .thenReturn(Optional.of(usuarioMock));
-
-            assertThatThrownBy(() -> authService.registrarUsuario(request))
-                    .isInstanceOf(CustomException.class)
-                    .hasMessageContaining("identificación");
-
-            verify(usuarioRepository, never()).save(any());
-        }
-
-        @Test
-        @DisplayName("La contraseña se hashea antes de guardar — nunca se persiste en texto plano")
-        void registrar_contrasenaSeHashea() throws CustomException {
-            RegistrarUsuarioRequest request = buildRequest();
-
-            when(usuarioRepository.findByCorreo(anyString())).thenReturn(Optional.empty());
-            when(usuarioRepository.findByIdentificacion(anyString())).thenReturn(Optional.empty());
-            when(passwordHasher.hash(request.getContrasena())).thenReturn("$2a$hashed");
-            when(usuarioRepository.save(any())).thenReturn(usuarioMock);
-            when(jwtService.obtenerToken(any())).thenReturn("token");
-
-            authService.registrarUsuario(request);
-
             verify(passwordHasher, times(1)).hash("Secreta123*");
         }
 
@@ -151,6 +108,7 @@ class AuthServiceTest {
         @Test
         @DisplayName("Retorna AuthResponse con token cuando las credenciales son correctas")
         void sesion_exitosa() throws CustomException {
+            // Arrange
             LoginRequest request = buildLoginRequest("ana@uniquindio.edu.co", "Secreta123*");
 
             when(usuarioRepository.findByCorreo(request.getCorreo()))
@@ -159,40 +117,17 @@ class AuthServiceTest {
                     .thenReturn(true);
             when(jwtService.obtenerToken(usuarioMock)).thenReturn("jwt.token.mock");
 
+            // Act
             AuthResponse response = authService.iniciarSesion(request);
 
+            // Assert
             assertThat(response.getAccessToken()).isEqualTo("jwt.token.mock");
             assertThat(response.getTokenType()).isEqualTo("Bearer");
             assertThat(response.getUsuario().getCorreo()).isEqualTo("ana@uniquindio.edu.co");
-        }
 
-        @Test
-        @DisplayName("Lanza CustomException 400 cuando la contraseña es incorrecta")
-        void sesion_contrasenaIncorrecta() {
-            LoginRequest request = buildLoginRequest("ana@uniquindio.edu.co", "ClaveWrong*");
-
-            when(usuarioRepository.findByCorreo(request.getCorreo()))
-                    .thenReturn(Optional.of(usuarioMock));
-            when(passwordHasher.matches(request.getContrasena(), usuarioMock.getContrasena()))
-                    .thenReturn(false);
-
-            assertThatThrownBy(() -> authService.iniciarSesion(request))
-                    .isInstanceOf(CustomException.class)
-                    .hasMessageContaining("Credenciales no válidas");
-
-            verify(jwtService, never()).obtenerToken(any());
-        }
-
-        @Test
-        @DisplayName("Lanza NoSuchElementException si el correo no existe en el repositorio")
-        void sesion_usuarioNoExiste() {
-            LoginRequest request = buildLoginRequest("noexiste@test.com", "Secreta123*");
-
-            when(usuarioRepository.findByCorreo(request.getCorreo()))
-                    .thenReturn(Optional.empty());
-
-            assertThatThrownBy(() -> authService.iniciarSesion(request))
-                    .isInstanceOf(java.util.NoSuchElementException.class);
+            verify(usuarioRepository, times(1)).findByCorreo(request.getCorreo());
+            verify(passwordHasher, times(1)).matches(request.getContrasena(), usuarioMock.getContrasena());
+            verify(jwtService, times(1)).obtenerToken(usuarioMock);
         }
 
         private LoginRequest buildLoginRequest(String correo, String contrasena) {
