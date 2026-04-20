@@ -27,6 +27,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.never;
+import static org.mockito.ArgumentMatchers.argThat;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AuthService - Tests unitarios")
@@ -99,6 +102,57 @@ class AuthServiceTest {
             r.setRol(RolUsuario.ESTUDIANTE);
             return r;
         }
+
+        @Test
+        @DisplayName("Lanza CustomException si el correo ya está registrado")
+        void registrar_correoYaExiste() {
+            RegistrarUsuarioRequest request = buildRequest();
+
+            when(usuarioRepository.findByCorreo(request.getCorreo()))
+                    .thenReturn(Optional.of(usuarioMock)); // correo encontrado → falla
+
+            assertThatThrownBy(() -> authService.registrarUsuario(request))
+                    .isInstanceOf(CustomException.class)
+                    .hasMessageContaining("correo electrónico");
+
+            verify(usuarioRepository, never()).save(any()); // nunca debe guardar
+        }
+
+        @Test
+        @DisplayName("Lanza CustomException si la identificación ya está registrada")
+        void registrar_identificacionYaExiste() {
+            RegistrarUsuarioRequest request = buildRequest();
+
+            when(usuarioRepository.findByCorreo(request.getCorreo()))
+                    .thenReturn(Optional.empty()); // correo ok
+            when(usuarioRepository.findByIdentificacion(request.getIdentificacion()))
+                    .thenReturn(Optional.of(usuarioMock)); // identificación duplicada
+
+            assertThatThrownBy(() -> authService.registrarUsuario(request))
+                    .isInstanceOf(CustomException.class)
+                    .hasMessageContaining("identificación");
+
+            verify(usuarioRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("La contraseña se hashea antes de guardar — nunca en texto plano")
+        void registrar_contrasenaSeHashea() throws CustomException {
+            RegistrarUsuarioRequest request = buildRequest();
+
+            when(usuarioRepository.findByCorreo(any())).thenReturn(Optional.empty());
+            when(usuarioRepository.findByIdentificacion(any())).thenReturn(Optional.empty());
+            when(passwordHasher.hash(request.getContrasena())).thenReturn("$2a$hashed");
+            when(usuarioRepository.save(any())).thenReturn(usuarioMock);
+            when(jwtService.obtenerToken(any())).thenReturn("jwt.token.mock");
+
+            authService.registrarUsuario(request);
+
+            verify(usuarioRepository).save(argThat(u ->
+                    u.getContrasena().equals("$2a$hashed") &&
+                            !u.getContrasena().equals("Secreta123*")
+            ));
+        }
     }
 
     @Nested
@@ -135,6 +189,40 @@ class AuthServiceTest {
             r.setCorreo(correo);
             r.setContrasena(contrasena);
             return r;
+        }
+
+        @Test
+        @DisplayName("Lanza CustomException 401 si el usuario no existe")
+        void sesion_usuarioNoExiste() {
+            LoginRequest request = buildLoginRequest("noexiste@test.com", "Secreta123*");
+
+            when(usuarioRepository.findByCorreo(request.getCorreo()))
+                    .thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> authService.iniciarSesion(request))
+                    .isInstanceOf(CustomException.class)
+                    .hasMessageContaining("Credenciales no válidas")
+                    .satisfies(ex -> assertThat(((CustomException) ex).getStatus()).isEqualTo(401));
+
+            verify(passwordHasher, never()).matches(any(), any());
+            verify(jwtService, never()).obtenerToken(any());
+        }
+
+        @Test
+        @DisplayName("Lanza CustomException 400 si la contraseña es incorrecta")
+        void sesion_contrasenaIncorrecta() {
+            LoginRequest request = buildLoginRequest("ana@uniquindio.edu.co", "MalaClave99!");
+
+            when(usuarioRepository.findByCorreo(request.getCorreo()))
+                    .thenReturn(Optional.of(usuarioMock));
+            when(passwordHasher.matches(request.getContrasena(), usuarioMock.getContrasena()))
+                    .thenReturn(false);
+
+            assertThatThrownBy(() -> authService.iniciarSesion(request))
+                    .isInstanceOf(CustomException.class)
+                    .satisfies(ex -> assertThat(((CustomException) ex).getStatus()).isEqualTo(400));
+
+            verify(jwtService, never()).obtenerToken(any());
         }
     }
 }

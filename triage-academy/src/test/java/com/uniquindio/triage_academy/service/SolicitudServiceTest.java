@@ -1,4 +1,4 @@
-package com.uniquindio.triage_academy.service.impl;
+package com.uniquindio.triage_academy.service;
 
 import com.uniquindio.triage_academy.dto.request.CambiarEstadoRequest;
 import com.uniquindio.triage_academy.dto.request.CerrarSolicitudRequest;
@@ -16,6 +16,7 @@ import com.uniquindio.triage_academy.model.enums.TipoSolicitud;
 import com.uniquindio.triage_academy.repository.HistorialRepository;
 import com.uniquindio.triage_academy.repository.SolicitudRepository;
 import com.uniquindio.triage_academy.repository.UsuarioRepository;
+import com.uniquindio.triage_academy.service.impl.SolicitudService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -37,6 +38,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.never;
+import jakarta.persistence.EntityNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("SolicitudService - Tests unitarios")
@@ -136,6 +140,36 @@ class SolicitudServiceTest {
             verify(solicitudRepository, times(1)).save(any(Solicitud.class));
             verify(historialRepository, times(1)).save(any(HistorialSolicitud.class));
         }
+
+        @Test
+        @DisplayName("Lanza EntityNotFoundException si el usuario no existe")
+        void crear_usuarioNoExiste() {
+            CrearSolicitudRequest request = buildCrearRequest();
+
+            when(usuarioRepository.findById(usuarioId)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> solicitudService.crear(request))
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessageContaining("Usuario no encontrado");
+
+            verify(solicitudRepository, never()).save(any());
+            verify(historialRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Asigna prioridad ALTA automáticamente para HOMOLOGACION")
+        void crear_prioridadAsignadaAutomaticamente() {
+            CrearSolicitudRequest request = buildCrearRequest(); // tipo = HOMOLOGACION
+
+            when(usuarioRepository.findById(usuarioId)).thenReturn(Optional.of(usuario));
+            when(solicitudRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+            when(historialRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            SolicitudResponse response = solicitudService.crear(request);
+
+            assertThat(response.getPrioridad()).isEqualTo(Prioridad.ALTA);
+            assertThat(response.getJustificacionPrioridad()).contains("HOMOLOGACION");
+        }
     }
 
     @Nested
@@ -186,6 +220,16 @@ class SolicitudServiceTest {
 
             verify(solicitudRepository, times(1)).findById(solicitudId);
         }
+
+        @Test
+        @DisplayName("Lanza EntityNotFoundException si la solicitud no existe")
+        void obtenerPorId_noExiste() {
+            when(solicitudRepository.findById(solicitudId)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> solicitudService.obtenerPorId(solicitudId))
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessageContaining("Solicitud no encontrada");
+        }
     }
 
     @Nested
@@ -211,6 +255,36 @@ class SolicitudServiceTest {
             verify(solicitudRepository, times(1)).findById(solicitudId);
             verify(solicitudRepository, times(1)).save(solicitud);
             verify(historialRepository, times(1)).save(any(HistorialSolicitud.class));
+        }
+
+        @Test
+        @DisplayName("Lanza IllegalStateException si la transición de estado es inválida")
+        void cambiarEstado_transicionInvalida() {
+            // Solicitud está REGISTRADA, se intenta pasar a EN_ATENCION (saltando CLASIFICADA)
+            CambiarEstadoRequest request = new CambiarEstadoRequest();
+            ReflectionTestUtils.setField(request, "nuevoEstado", EstadoSolicitud.EN_ATENCION);
+            ReflectionTestUtils.setField(request, "observaciones", "Intento inválido");
+
+            when(solicitudRepository.findById(solicitudId)).thenReturn(Optional.of(solicitud));
+            // solicitud.estado = REGISTRADA, siguiente válido = CLASIFICADA → EN_ATENCION es inválido
+
+            assertThatThrownBy(() -> solicitudService.cambiarEstado(solicitudId, request))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("Transición inválida");
+
+            verify(solicitudRepository, never()).save(any());
+            verify(historialRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Lanza EntityNotFoundException si la solicitud no existe al cambiar estado")
+        void cambiarEstado_solicitudNoExiste() {
+            CambiarEstadoRequest request = buildCambiarEstadoRequest();
+
+            when(solicitudRepository.findById(solicitudId)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> solicitudService.cambiarEstado(solicitudId, request))
+                    .isInstanceOf(EntityNotFoundException.class);
         }
     }
 
@@ -240,6 +314,31 @@ class SolicitudServiceTest {
             verify(solicitudRepository, times(1)).save(solicitud);
             verify(historialRepository, times(1)).save(any(HistorialSolicitud.class));
         }
+
+        @Test
+        @DisplayName("Lanza IllegalStateException si la solicitud no está en estado ATENDIDA")
+        void cerrar_estadoInvalido() {
+            solicitud.setEstado(EstadoSolicitud.REGISTRADA);
+            CerrarSolicitudRequest request = buildCerrarRequest();
+
+            when(solicitudRepository.findById(solicitudId)).thenReturn(Optional.of(solicitud));
+
+            assertThatThrownBy(() -> solicitudService.cerrar(solicitudId, request))
+                    .isInstanceOf(IllegalStateException.class)
+                    .hasMessageContaining("ATENDIDA");
+
+            verify(solicitudRepository, never()).save(any());
+            verify(historialRepository, never()).save(any());
+        }
+
+        @Test
+        @DisplayName("Lanza EntityNotFoundException si la solicitud no existe al cerrar")
+        void cerrar_solicitudNoExiste() {
+            when(solicitudRepository.findById(solicitudId)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> solicitudService.cerrar(solicitudId, buildCerrarRequest()))
+                    .isInstanceOf(EntityNotFoundException.class);
+        }
     }
 
     @Nested
@@ -264,6 +363,29 @@ class SolicitudServiceTest {
 
             verify(solicitudRepository, times(1)).existsById(solicitudId);
             verify(historialRepository, times(1)).findBySolicitudId(solicitudId);
+        }
+
+        @Test
+        @DisplayName("Lanza EntityNotFoundException si la solicitud no existe al pedir historial")
+        void obtenerHistorial_solicitudNoExiste() {
+            when(solicitudRepository.existsById(solicitudId)).thenReturn(false);
+
+            assertThatThrownBy(() -> solicitudService.obtenerHistorial(solicitudId))
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessageContaining("Solicitud no encontrada");
+
+            verify(historialRepository, never()).findBySolicitudId(any());
+        }
+
+        @Test
+        @DisplayName("Retorna lista vacía si la solicitud existe pero no tiene historial")
+        void obtenerHistorial_listaVacia() {
+            when(solicitudRepository.existsById(solicitudId)).thenReturn(true);
+            when(historialRepository.findBySolicitudId(solicitudId)).thenReturn(List.of());
+
+            List<HistorialSolicitudResponse> response = solicitudService.obtenerHistorial(solicitudId);
+
+            assertThat(response).isEmpty(); // no debe lanzar excepción
         }
     }
 

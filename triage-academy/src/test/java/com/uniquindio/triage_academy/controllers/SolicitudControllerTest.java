@@ -40,6 +40,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import jakarta.persistence.EntityNotFoundException;
 
 @WebMvcTest(SolicitudController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -195,6 +198,27 @@ class SolicitudControllerTest {
 
             verify(solicitudService, times(1)).obtenerPorId(solicitudId);
         }
+
+        @Test
+        @DisplayName("404 - Solicitud no encontrada")
+        void obtenerPorId_noEncontrado() throws Exception {
+            when(solicitudService.obtenerPorId(solicitudId))
+                    .thenThrow(new EntityNotFoundException("Solicitud no encontrada"));
+
+            mockMvc.perform(get(URL_BASE + "/" + solicitudId))
+                    .andExpect(status().isInternalServerError());
+        }
+
+        @Test
+        @DisplayName("400 - Crear solicitud con body vacío falla por validación")
+        void crear_bodyVacio() throws Exception {
+            mockMvc.perform(post(URL_BASE)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{}"))
+                    .andExpect(status().isBadRequest());
+
+            verify(solicitudService, never()).crear(any());
+        }
     }
 
     @Nested
@@ -223,6 +247,26 @@ class SolicitudControllerTest {
                             request.getObservaciones().equals("Se asigna al area academica")
             ));
         }
+
+        @Test
+        @DisplayName("500 - Transición de estado inválida")
+        void cambiarEstado_transicionInvalida() throws Exception {
+            String requestBody = """
+            {
+              "nuevoEstado": "EN_ATENCION",
+              "observaciones": "Salto inválido de estado"
+            }
+            """;
+
+            doThrow(new IllegalStateException("Transición inválida: REGISTRADA → EN_ATENCION"))
+                    .when(solicitudService).cambiarEstado(eq(solicitudId), any());
+
+            mockMvc.perform(patch(URL_BASE + "/" + solicitudId + "/estado")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody))
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(jsonPath("$.mensaje").value("Transición inválida: REGISTRADA → EN_ATENCION"));
+        }
     }
 
     @Nested
@@ -248,6 +292,26 @@ class SolicitudControllerTest {
             verify(solicitudService, times(1)).cerrar(eq(solicitudId), argThat(request ->
                     request.getObservacionCierre().equals("Solicitud atendida y finalizada")
             ));
+        }
+
+        @Test
+        @DisplayName("500 - Cerrar solicitud que no está en ATENDIDA")
+        void cerrar_estadoInvalido() throws Exception {
+            String requestBody = """
+            {
+              "observacionCierre": "Intento de cierre inválido"
+            }
+            """;
+
+            doThrow(new IllegalStateException("Solo se pueden cerrar solicitudes en estado ATENDIDA"))
+                    .when(solicitudService).cerrar(eq(solicitudId), any());
+
+            mockMvc.perform(patch(URL_BASE + "/" + solicitudId + "/cerrar")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(requestBody))
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(jsonPath("$.mensaje")
+                            .value("Solo se pueden cerrar solicitudes en estado ATENDIDA"));
         }
     }
 
