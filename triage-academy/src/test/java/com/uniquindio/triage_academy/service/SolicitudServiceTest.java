@@ -198,6 +198,35 @@ class SolicitudServiceTest {
 
             verify(solicitudRepository, times(1)).findAll(any(Specification.class));
         }
+
+        @Test
+        @DisplayName("Filtra solicitudes solo por idResponsable")
+        void listar_idResponsable() {
+            when(solicitudRepository.findAll(any(Specification.class))).thenReturn(List.of(solicitud));
+            List<SolicitudResponse> response = solicitudService.listar(null, null, null, responsableId);
+            assertThat(response).hasSize(1);
+            assertThat(response.getFirst().getIdResponsable()).isEqualTo(responsableId);
+            verify(solicitudRepository, times(1)).findAll(any(Specification.class));
+        }
+
+        @Test
+        @DisplayName("Retorna todas las solicitues con filtros en null")
+        void listar_sinFiltros() {
+            when(solicitudRepository.findAll(any(Specification.class))).thenReturn(List.of(solicitud));
+            List<SolicitudResponse> response = solicitudService.listar(null, null, null, null);
+            assertThat(response).hasSize(1);
+            verify(solicitudRepository, times(1)).findAll(any(Specification.class));
+        }
+
+        @Test
+        @DisplayName("Mapea idUsuario como cuando la solicitud no tiene usuario asignado")
+        void listar_solicitudesSinUsuario() {
+            solicitud.setUsuario(null);
+            when(solicitudRepository.findAll(any(Specification.class))).thenReturn(List.of(solicitud));
+            List<SolicitudResponse> response = solicitudService.listar(null, null, null, null);
+            assertThat(response).hasSize(1);
+            assertThat(response.getFirst().getIdUsuario()).isNull();
+        }
     }
 
     @Nested
