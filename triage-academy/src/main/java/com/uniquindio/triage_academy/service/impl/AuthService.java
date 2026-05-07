@@ -8,6 +8,7 @@ import com.uniquindio.triage_academy.helpers.BcryptPasswordHasher;
 import com.uniquindio.triage_academy.helpers.exception.CustomException;
 import com.uniquindio.triage_academy.helpers.mappers.HelperMappers;
 import com.uniquindio.triage_academy.model.entity.Usuario;
+import com.uniquindio.triage_academy.model.enums.RolUsuario;
 import com.uniquindio.triage_academy.repository.UsuarioRepository;
 import com.uniquindio.triage_academy.service.AuthInterface;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,7 @@ public class AuthService implements AuthInterface {
                 .correo(request.getCorreo())
                 .identificacion(request.getIdentificacion())
                 .activo(true)
-                .rol(request.getRol())
+                .rol(RolUsuario.ESTUDIANTE)
                 .contrasena(passwordHasher.hash(request.getContrasena()))
                 .build();
 
