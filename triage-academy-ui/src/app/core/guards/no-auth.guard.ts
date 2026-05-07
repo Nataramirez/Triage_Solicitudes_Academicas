@@ -8,6 +8,5 @@ export const noAuthGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   if (!authService.isAuthenticated()) return true;
-  router.navigate(['/home']);
-  return false;
+  return router.createUrlTree([authService.getHomeRoute()]);
 };

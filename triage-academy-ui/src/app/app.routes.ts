@@ -1,9 +1,10 @@
 import { Routes } from '@angular/router';
 import { noAuthGuard } from './core/guards/no-auth.guard';
 import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
-    { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
   {
     path: 'register',
     loadComponent: () => import('./pages/register/register.page').then(m => m.RegisterPage),
@@ -17,6 +18,16 @@ export const routes: Routes = [
   {
     path: 'home',
     loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent),
-    canActivate: [authGuard]
+    canActivate: [authGuard, roleGuard('ESTUDIANTE')]
+  },
+  {
+    path: 'home-administrativo',
+    loadComponent: () => import('./pages/home-administrativo/home-administrativo.component').then(m => m.HomeAdministrativoComponent),
+    canActivate: [authGuard, roleGuard('ADMINISTRATIVO')]
+  },
+  {
+    path: 'home-director',
+    loadComponent: () => import('./pages/home-director/home-director.component').then(m => m.HomeDirectorComponent),
+    canActivate: [authGuard, roleGuard('DIRECTOR')]
   }
 ];

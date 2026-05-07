@@ -11,6 +11,7 @@ export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
   private readonly TOKEN_KEY = 'auth_token';
+  private readonly ROLE_KEY = 'user_rol';
   private readonly BASE_URL = `${environment.apiUrl}`;
 
   register(data: UserRegisterRequest): Observable<AuthResponse> {
@@ -31,14 +32,29 @@ export class AuthService {
     localStorage.setItem(this.TOKEN_KEY, response.accessToken);
     localStorage.setItem('user_name', response.usuario.nombre);
     localStorage.setItem('user_id', response.usuario.id);
+    localStorage.setItem(this.ROLE_KEY, response.usuario.rol);
   }
 
   getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
+  getUserRole(): string | null {
+    return localStorage.getItem(this.ROLE_KEY);
+  }
+
+  getHomeRoute(): string {
+    const role = this.getUserRole();
+    if (role === 'ADMINISTRATIVO') return '/home-administrativo';
+    if (role === 'DIRECTOR') return '/home-director';
+    return '/home';
+  }
+
   removeToken(): void {
     localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem('user_name');
+    localStorage.removeItem('user_id');
+    localStorage.removeItem(this.ROLE_KEY);
     this.router.navigate(['/login']);
   }
 

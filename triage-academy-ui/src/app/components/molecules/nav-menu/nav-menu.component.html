@@ -1,0 +1,5 @@
+<div class="flex items-center gap-6">
+  @for (item of items(); track item.route) {
+    <app-nav-link [label]="item.label" [route]="item.route" />
+  }
+</div>

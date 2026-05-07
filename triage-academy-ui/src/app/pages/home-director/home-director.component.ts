@@ -3,14 +3,15 @@ import { NavbarComponent } from '../../components/organisms/navbar/navbar.compon
 import { NavItem } from '../../core/shared/models/nav.model';
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-home-director',
   standalone: true,
   imports: [NavbarComponent],
-  templateUrl: './home.component.html',
+  templateUrl: './home-director.component.html',
 })
-export class HomeComponent {
+export class HomeDirectorComponent {
   navItems: NavItem[] = [
-    { label: 'Inicio', route: '/home' },
-    { label: 'Mis Solicitudes', route: '/solicitudes' },
+    { label: 'Inicio', route: '/home-director' },
+    { label: 'Solicitudes', route: '/solicitudes' },
+    { label: 'Usuarios', route: '/usuarios' },
   ];
 }

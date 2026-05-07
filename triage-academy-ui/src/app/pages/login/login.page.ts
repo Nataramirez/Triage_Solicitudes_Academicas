@@ -28,7 +28,7 @@ export class LoginPage {
     this.auth.login(form).subscribe({
       next: () => {
         this.notification.show('Bienvenido', 'success');
-        this.router.navigate(['/home']);
+        this.router.navigate([this.auth.getHomeRoute()]);
       },
       error: (err: Error) => {
         this.loading = false;
