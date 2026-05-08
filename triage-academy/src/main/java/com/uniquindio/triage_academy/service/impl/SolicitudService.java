@@ -4,6 +4,7 @@ import com.uniquindio.triage_academy.dto.request.*;
 import com.uniquindio.triage_academy.dto.response.*;
 import com.uniquindio.triage_academy.model.entity.*;
 import com.uniquindio.triage_academy.model.enums.*;
+import com.uniquindio.triage_academy.helpers.exception.CustomException;
 import com.uniquindio.triage_academy.repository.*;
 import com.uniquindio.triage_academy.service.SolicitudInterface;
 import jakarta.persistence.EntityNotFoundException;
@@ -94,6 +95,13 @@ public class SolicitudService implements SolicitudInterface {
     }
 
     @Override
+    public List<SolicitudResponse> listarSolicitudesUsuarioAutenticado(String usuarioId) {
+        return solicitudRepository.findByUsuarioId(UUID.fromString(usuarioId)).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
     public SolicitudResponse obtenerPorId(UUID id) {
         Solicitud solicitud = solicitudRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Solicitud no encontrada"));
@@ -144,6 +152,20 @@ public class SolicitudService implements SolicitudInterface {
         }
 
         return historialRepository.findBySolicitudId(id).stream()
+                .map(this::toHistorialResponse)
+                .toList();
+    }
+
+    @Override
+    public List<HistorialSolicitudResponse> obtenerHistorialSolicitud(UUID solicitudId, String usuarioId) throws CustomException {
+        Solicitud solicitud = solicitudRepository.findById(solicitudId)
+                .orElseThrow(() -> new EntityNotFoundException("Solicitud no encontrada"));
+
+        if (!solicitud.getUsuario().getId().equals(UUID.fromString(usuarioId))) {
+            throw new CustomException(403, "No tienes permiso para ver el historial de esta solicitud", null);
+        }
+
+        return historialRepository.findBySolicitudId(solicitudId).stream()
                 .map(this::toHistorialResponse)
                 .toList();
     }

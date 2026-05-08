@@ -1,10 +1,12 @@
 package com.uniquindio.triage_academy.controllers;
 
+import com.uniquindio.triage_academy.configuracion.seguridad.UsuarioAutenticado;
 import com.uniquindio.triage_academy.dto.request.CambiarEstadoRequest;
 import com.uniquindio.triage_academy.dto.request.CerrarSolicitudRequest;
 import com.uniquindio.triage_academy.dto.request.CrearSolicitudRequest;
 import com.uniquindio.triage_academy.dto.response.HistorialSolicitudResponse;
 import com.uniquindio.triage_academy.dto.response.SolicitudResponse;
+import com.uniquindio.triage_academy.helpers.exception.CustomException;
 import com.uniquindio.triage_academy.model.enums.EstadoSolicitud;
 import com.uniquindio.triage_academy.model.enums.Prioridad;
 import com.uniquindio.triage_academy.model.enums.TipoSolicitud;
@@ -13,6 +15,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,6 +34,13 @@ public class SolicitudController {
             @Valid @RequestBody CrearSolicitudRequest request) {
         SolicitudResponse response = solicitudService.crear(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/estudiante")
+    @PreAuthorize("hasAuthority('ESTUDIANTE')")
+    public ResponseEntity<List<SolicitudResponse>> listarSolicitudesUsuarioAutenticado(
+            @AuthenticationPrincipal UsuarioAutenticado usuario) {
+        return ResponseEntity.ok(solicitudService.listarSolicitudesUsuarioAutenticado(usuario.id()));
     }
 
     @GetMapping
@@ -66,5 +77,13 @@ public class SolicitudController {
     public ResponseEntity<List<HistorialSolicitudResponse>> obtenerHistorial(
             @PathVariable UUID id) {
         return ResponseEntity.ok(solicitudService.obtenerHistorial(id));
+    }
+
+    @GetMapping("/estudiante/{id}/historial")
+    @PreAuthorize("hasAuthority('ESTUDIANTE')")
+    public ResponseEntity<List<HistorialSolicitudResponse>> obtenerHistorialSolicitud(
+            @PathVariable UUID id,
+            @AuthenticationPrincipal UsuarioAutenticado usuario) throws CustomException {
+        return ResponseEntity.ok(solicitudService.obtenerHistorialSolicitud(id, usuario.id()));
     }
 }
