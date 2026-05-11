@@ -26,6 +26,11 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard('ADMINISTRATIVO')]
   },
   {
+    path: 'gestion-solicitudes',
+    loadComponent: () => import('./pages/gestion-solicitudes/gestion-solicitudes.component').then(m => m.GestionSolicitudesComponent),
+    canActivate: [authGuard, roleGuard('ADMINISTRATIVO')]
+  },
+  {
     path: 'home-director',
     loadComponent: () => import('./pages/home-director/home-director.component').then(m => m.HomeDirectorComponent),
     canActivate: [authGuard, roleGuard('DIRECTOR')]

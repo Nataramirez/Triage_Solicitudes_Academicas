@@ -1,8 +1,11 @@
-<div class="min-h-screen bg-slate-100">
+<div class="min-h-screen flex flex-col bg-slate-100">
   <app-navbar title="Panel Administrativo" [navItems]="navItems" />
-  <main class="max-w-4xl mx-auto mt-8 px-4">
-    <section class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-      <h1 class="text-xl font-semibold text-slate-700">Bienvenido, Administrativo</h1>
-    </section>
-  </main>
+  <div class="flex flex-1">
+    <app-sidebar [items]="sidebarItems" />
+    <main class="flex-1 p-6">
+      <section class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+        <h1 class="text-xl font-semibold text-slate-700">Bienvenido, Administrativo</h1>
+      </section>
+    </main>
+  </div>
 </div>

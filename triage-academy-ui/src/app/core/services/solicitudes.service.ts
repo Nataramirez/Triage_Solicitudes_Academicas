@@ -17,4 +17,12 @@ export class SolicitudesService {
   getHistorialEstudiante(idSolicitud: string): Observable<HistorialItem[]> {
     return this.http.get<HistorialItem[]>(`${this.BASE_URL}/solicitudes/estudiante/${idSolicitud}/historial`);
   }
+
+  getSolicitudes(): Observable<Solicitud[]> {
+    return this.http.get<Solicitud[]>(`${this.BASE_URL}/solicitudes`);
+  }
+
+  getHistorial(idSolicitud: string): Observable<HistorialItem[]> {
+    return this.http.get<HistorialItem[]>(`${this.BASE_URL}/solicitudes/${idSolicitud}/historial`);
+  }
 }

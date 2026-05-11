@@ -1,0 +1,47 @@
+<div class="overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead class="bg-slate-50 border-b border-slate-200">
+      <tr>
+        <th class="text-left px-4 py-2.5 font-medium text-slate-700">Tipo</th>
+        <th class="text-left px-4 py-2.5 font-medium text-slate-700">Descripción</th>
+        <th class="text-left px-4 py-2.5 font-medium text-slate-700">Estado</th>
+        <th class="text-left px-4 py-2.5 font-medium text-slate-700">Prioridad</th>
+        <th class="text-left px-4 py-2.5 font-medium text-slate-700">Canal</th>
+        <th class="text-left px-4 py-2.5 font-medium text-slate-700">Fecha</th>
+        <th class="text-left px-4 py-2.5 font-medium text-slate-700">Acciones</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-200">
+      @for (solicitud of solicitudes(); track solicitud.id) {
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="px-4 py-3 text-slate-800 font-medium whitespace-nowrap">{{ solicitud.tipo }}</td>
+          <td class="px-4 py-3 text-slate-600 max-w-xs">
+            <span class="line-clamp-2">{{ solicitud.descripcion }}</span>
+          </td>
+          <td class="px-4 py-3 whitespace-nowrap">
+            <app-badge [text]="solicitud.estado" [variant]="estadoVariant(solicitud.estado)" />
+          </td>
+          <td class="px-4 py-3 whitespace-nowrap">
+            <app-badge [text]="solicitud.prioridad" [variant]="prioridadVariant(solicitud.prioridad)" />
+          </td>
+          <td class="px-4 py-3 text-slate-600 text-xs whitespace-nowrap">{{ solicitud.canalOrigen }}</td>
+          <td class="px-4 py-3 text-slate-600 text-xs whitespace-nowrap">{{ solicitud.fechaRegistro | date:'dd/MM/yyyy' }}</td>
+          <td class="px-4 py-3 whitespace-nowrap">
+            <button
+              type="button"
+              (click)="viewHistorial.emit(solicitud)"
+              class="p-1.5 rounded text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400"
+              aria-label="Ver historial"
+              title="Ver historial"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+              </svg>
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
