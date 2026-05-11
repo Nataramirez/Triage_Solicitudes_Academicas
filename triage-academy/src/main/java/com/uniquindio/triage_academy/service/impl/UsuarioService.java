@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -45,6 +46,22 @@ public class UsuarioService implements UsuarioInterface {
         log.info("@registrarAdministrativo SERV > Finaliza registro del administrativo con request {}", request);
 
         return HelperMappers.toUsuarioResponse(administrativo);
+    }
+
+    @Override
+    public List<UsuarioResponse> listarAdministrativos() {
+
+        log.info("@listarAdministrativos SERV > Inicia consulta de usuarios administrativos");
+
+        List<UsuarioResponse> administrativos = usuarioRepository.findAllByRol(RolUsuario.ADMINISTRATIVO)
+                .stream()
+                .map(HelperMappers::toUsuarioResponse)
+                .toList();
+
+        log.info("@listarAdministrativos SERV > Finaliza consulta de usuarios administrativos. Total: {}",
+                administrativos.size());
+
+        return administrativos;
     }
 
     private void validarIdentificacionRegistro(String identificacion) throws CustomException {
