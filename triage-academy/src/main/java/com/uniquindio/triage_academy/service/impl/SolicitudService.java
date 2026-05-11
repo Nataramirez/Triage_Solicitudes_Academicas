@@ -110,7 +110,7 @@ public class SolicitudService implements SolicitudInterface {
 
     @Override
     @Transactional
-    public void cambiarEstado(UUID id, CambiarEstadoRequest request) {
+    public void cambiarEstado(UUID id, CambiarEstadoRequest request) { //TODO: Preguntar si hacemos validacion de que el cambio de estado lo este realizando el repsonsable de la solicitud y determinar si lo puede hacer el director
         Solicitud solicitud = solicitudRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Solicitud no encontrada"));
 
@@ -130,7 +130,7 @@ public class SolicitudService implements SolicitudInterface {
 
     @Override
     @Transactional
-    public void cerrar(UUID id, CerrarSolicitudRequest request) {
+    public void cerrar(UUID id, CerrarSolicitudRequest request) {  //TODO: Preguntar si hacemos validacion de que el cambio de estado lo este realizando el repsonsable de la solicitud y determiknar si lo puede hacer el director
         Solicitud solicitud = solicitudRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Solicitud no encontrada"));
 
