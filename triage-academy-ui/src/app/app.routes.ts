@@ -29,5 +29,10 @@ export const routes: Routes = [
     path: 'home-director',
     loadComponent: () => import('./pages/home-director/home-director.component').then(m => m.HomeDirectorComponent),
     canActivate: [authGuard, roleGuard('DIRECTOR')]
+  },
+  {
+    path: 'gestion-administrativos',
+    loadComponent: () => import('./pages/gestion-administrativos/gestion-administrativos.component').then(m => m.GestionAdministrativosComponent),
+    canActivate: [authGuard, roleGuard('DIRECTOR')]
   }
 ];

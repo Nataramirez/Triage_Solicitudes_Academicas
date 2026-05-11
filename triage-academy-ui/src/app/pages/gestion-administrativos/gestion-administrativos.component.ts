@@ -4,12 +4,12 @@ import { SidebarComponent } from '../../components/organisms/sidebar/sidebar.com
 import { NavItem } from '../../core/shared/models/nav.model';
 
 @Component({
-  selector: 'app-home-director',
+  selector: 'app-gestion-administrativos',
   standalone: true,
   imports: [NavbarComponent, SidebarComponent],
-  templateUrl: './home-director.component.html',
+  templateUrl: './gestion-administrativos.component.html',
 })
-export class HomeDirectorComponent {
+export class GestionAdministrativosComponent {
   navItems: NavItem[] = [
     { label: 'Inicio', route: '/home-director' },
   ];
