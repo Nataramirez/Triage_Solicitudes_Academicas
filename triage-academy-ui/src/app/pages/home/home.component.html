@@ -1,4 +1,19 @@
 <app-navbar title="Panel Estudiante" [navItems]="navItems" />
-<main class="max-w-lg mx-auto mt-10 px-4">
-  <h1 class="text-xl font-semibold text-gray-800 mb-4">Home</h1>
+
+<main class="max-w-3xl mx-auto mt-10 px-4">
+  <h2 class="text-lg font-semibold text-gray-800 mb-4">Mis Solicitudes</h2>
+
+  @if (loading()) {
+    <p class="text-sm text-gray-500">Cargando solicitudes...</p>
+  } @else if (error()) {
+    <p class="text-sm text-red-500">{{ error() }}</p>
+  } @else if (solicitudes().length === 0) {
+    <p class="text-sm text-gray-500">No tienes solicitudes registradas.</p>
+  } @else {
+    <div class="flex flex-col gap-3">
+      @for (solicitud of solicitudes(); track solicitud.id) {
+        <app-solicitud-card [solicitud]="solicitud" />
+      }
+    </div>
+  }
 </main>
