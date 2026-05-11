@@ -4,8 +4,15 @@
     <app-sidebar [items]="sidebarItems" />
     <main class="flex-1 p-6">
       <section class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-        <header class="px-6 py-4 border-b border-slate-200">
+        <header class="flex items-center justify-between gap-4 px-6 py-4 border-b border-slate-200">
           <h1 class="text-xl font-semibold text-slate-700">Gestión de solicitudes</h1>
+          <button
+            type="button"
+            (click)="openCreateModal()"
+            class="px-4 py-2 text-sm font-medium bg-slate-700 text-white rounded hover:bg-slate-800 transition-colors"
+          >
+            Crear solicitud
+          </button>
         </header>
 
         <app-solicitudes-filters
@@ -29,6 +36,15 @@
     </main>
   </div>
 </div>
+
+@if (modalOpen()) {
+  <app-crear-solicitud-modal
+    [loading]="creating()"
+    [error]="createError()"
+    (closed)="closeCreateModal()"
+    (submitted)="onCreate($event)"
+  />
+}
 
 @if (selectedSolicitud(); as sel) {
   <app-historial-modal

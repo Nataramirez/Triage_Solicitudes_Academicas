@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { Solicitud } from '../shared/models/solicitud.model';
+import { Solicitud, CrearSolicitudRequest } from '../shared/models/solicitud.model';
 import { HistorialItem } from '../shared/models/historial.model';
 
 export interface SolicitudesQuery {
@@ -36,5 +36,22 @@ export class SolicitudesService {
 
   getHistorial(idSolicitud: string): Observable<HistorialItem[]> {
     return this.http.get<HistorialItem[]>(`${this.BASE_URL}/solicitudes/${idSolicitud}/historial`);
+  }
+
+  crearSolicitud(data: CrearSolicitudRequest): Observable<Solicitud> {
+    return this.http.post<Solicitud>(`${this.BASE_URL}/solicitudes`, data).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    const errorMessages: Record<number, string> = {
+      400: 'Datos inválidos',
+      401: 'No autorizado',
+      404: 'Usuario no encontrado',
+      500: 'Error interno del servidor',
+    };
+    const message = errorMessages[error.status] ?? 'Error inesperado, intenta de nuevo';
+    return throwError(() => new Error(message));
   }
 }

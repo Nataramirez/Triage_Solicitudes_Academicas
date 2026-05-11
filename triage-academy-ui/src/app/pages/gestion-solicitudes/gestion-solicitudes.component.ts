@@ -7,9 +7,14 @@ import {
   SolicitudesFilters,
 } from '../../components/molecules/solicitudes-filters/solicitudes-filters.component';
 import { HistorialModalComponent } from '../../components/organisms/historial-modal/historial-modal.component';
+import {
+  CrearSolicitudModalComponent,
+  CrearSolicitudPayload,
+} from '../../components/organisms/crear-solicitud-modal/crear-solicitud-modal.component';
 import { SolicitudesService, SolicitudesQuery } from '../../core/services/solicitudes.service';
 import { AuthService } from '../../core/services/auth-service.service';
-import { Solicitud } from '../../core/shared/models/solicitud.model';
+import { NotificationService } from '../../core/services/notification.service';
+import { Solicitud, CrearSolicitudRequest } from '../../core/shared/models/solicitud.model';
 import { HistorialItem } from '../../core/shared/models/historial.model';
 import { NavItem } from '../../core/shared/models/nav.model';
 
@@ -22,12 +27,14 @@ import { NavItem } from '../../core/shared/models/nav.model';
     SolicitudesTableComponent,
     SolicitudesFiltersComponent,
     HistorialModalComponent,
+    CrearSolicitudModalComponent,
   ],
   templateUrl: './gestion-solicitudes.component.html',
 })
 export class GestionSolicitudesComponent implements OnInit {
   private solicitudesService = inject(SolicitudesService);
   private auth = inject(AuthService);
+  private notification = inject(NotificationService);
 
   navItems: NavItem[] = [
     { label: 'Inicio', route: '/home-administrativo' },
@@ -53,6 +60,10 @@ export class GestionSolicitudesComponent implements OnInit {
   historialLoading = signal(false);
   historialError = signal<string | null>(null);
 
+  modalOpen = signal(false);
+  creating = signal(false);
+  createError = signal<string | null>(null);
+
   ngOnInit(): void {
     this.loadSolicitudes();
   }
@@ -60,6 +71,42 @@ export class GestionSolicitudesComponent implements OnInit {
   onFiltersChange(filters: SolicitudesFilters): void {
     this.filters.set(filters);
     this.loadSolicitudes();
+  }
+
+  openCreateModal(): void {
+    this.createError.set(null);
+    this.modalOpen.set(true);
+  }
+
+  closeCreateModal(): void {
+    this.modalOpen.set(false);
+    this.createError.set(null);
+  }
+
+  onCreate(data: CrearSolicitudPayload): void {
+    const userId = this.auth.getUserId();
+    if (!userId) {
+      this.createError.set('No se pudo identificar el usuario.');
+      return;
+    }
+
+    this.creating.set(true);
+    this.createError.set(null);
+
+    const payload: CrearSolicitudRequest = { ...data, idUsuario: userId };
+
+    this.solicitudesService.crearSolicitud(payload).subscribe({
+      next: () => {
+        this.creating.set(false);
+        this.modalOpen.set(false);
+        this.notification.show('Solicitud creada exitosamente', 'success');
+        this.loadSolicitudes();
+      },
+      error: (err: Error) => {
+        this.creating.set(false);
+        this.createError.set(err.message);
+      },
+    });
   }
 
   openHistorial(solicitud: Solicitud): void {

@@ -11,3 +11,10 @@ export interface Solicitud {
   justificacionPrioridad: string;
   observacionCierre: string | null;
 }
+
+export interface CrearSolicitudRequest {
+  idUsuario: string;
+  tipo: string;
+  descripcion: string;
+  canalOrigen: string;
+}

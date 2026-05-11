@@ -1,0 +1,89 @@
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="crear-solicitud-title"
+  (click)="onClose()"
+>
+  <div
+    class="bg-white rounded-lg shadow-lg border border-slate-200 w-full max-w-md max-h-[90vh] flex flex-col"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="flex items-start justify-between gap-4 px-5 py-4 border-b border-slate-200">
+      <h3 id="crear-solicitud-title" class="text-sm font-semibold text-slate-800">
+        Crear solicitud
+      </h3>
+      <button
+        type="button"
+        (click)="onClose()"
+        class="text-slate-400 hover:text-slate-700 text-xl leading-none focus:outline-none"
+        aria-label="Cerrar"
+      >
+        &times;
+      </button>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="px-5 py-4 flex flex-col gap-4 overflow-y-auto">
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-medium text-slate-700">Tipo de solicitud</label>
+        <app-select
+          [value]="form.controls.tipo.value || ''"
+          placeholder="Selecciona un tipo"
+          [options]="tipoOptions"
+          (valueChange)="setTipo($event)"
+        />
+        @if (form.controls.tipo.touched && form.controls.tipo.hasError('required')) {
+          <span class="text-red-500 text-xs">Selecciona un tipo</span>
+        }
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label for="descripcion" class="text-sm font-medium text-slate-700">Descripción</label>
+        <textarea
+          id="descripcion"
+          [formControl]="form.controls.descripcion"
+          rows="4"
+          placeholder="Describe tu solicitud..."
+          class="w-full rounded-md px-3 py-2 text-sm border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent resize-none"
+        ></textarea>
+        @if (form.controls.descripcion.touched && form.controls.descripcion.hasError('required')) {
+          <span class="text-red-500 text-xs">La descripción es obligatoria</span>
+        } @else if (form.controls.descripcion.touched && form.controls.descripcion.hasError('minlength')) {
+          <span class="text-red-500 text-xs">Mínimo 10 caracteres</span>
+        }
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-medium text-slate-700">Canal de origen</label>
+        <app-select
+          [value]="form.controls.canalOrigen.value || ''"
+          placeholder="Selecciona un canal"
+          [options]="canalOptions"
+          (valueChange)="setCanalOrigen($event)"
+        />
+        @if (form.controls.canalOrigen.touched && form.controls.canalOrigen.hasError('required')) {
+          <span class="text-red-500 text-xs">Selecciona un canal</span>
+        }
+      </div>
+
+      @if (error()) {
+        <p class="text-sm text-red-600">{{ error() }}</p>
+      }
+
+      <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 mt-2">
+        <button
+          type="button"
+          (click)="onClose()"
+          class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 transition-colors"
+        >
+          Cancelar
+        </button>
+        <div class="w-32">
+          <app-button type="submit" [disabled]="loading() || form.invalid">
+            {{ loading() ? 'Creando...' : 'Crear' }}
+          </app-button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
