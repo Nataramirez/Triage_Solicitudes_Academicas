@@ -8,12 +8,17 @@
           <h1 class="text-xl font-semibold text-slate-700">Gestión de solicitudes</h1>
         </header>
 
+        <app-solicitudes-filters
+          [filters]="filters()"
+          (filtersChange)="onFiltersChange($event)"
+        />
+
         @if (loading()) {
           <p class="px-6 py-8 text-sm text-slate-500">Cargando solicitudes...</p>
         } @else if (error()) {
           <p class="px-6 py-8 text-sm text-red-600">{{ error() }}</p>
         } @else if (solicitudes().length === 0) {
-          <p class="px-6 py-8 text-sm text-slate-500">No hay solicitudes registradas.</p>
+          <p class="px-6 py-8 text-sm text-slate-500">No se encontraron solicitudes.</p>
         } @else {
           <app-solicitudes-table
             [solicitudes]="solicitudes()"
