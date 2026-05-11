@@ -1,14 +1,16 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { NavbarComponent } from '../../components/organisms/navbar/navbar.component';
 import { SolicitudCardComponent } from '../../components/molecules/solicitud-card/solicitud-card.component';
+import { HistorialModalComponent } from '../../components/organisms/historial-modal/historial-modal.component';
 import { SolicitudesService } from '../../core/services/solicitudes.service';
 import { Solicitud } from '../../core/shared/models/solicitud.model';
+import { HistorialItem } from '../../core/shared/models/historial.model';
 import { NavItem } from '../../core/shared/models/nav.model';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [NavbarComponent, SolicitudCardComponent],
+  imports: [NavbarComponent, SolicitudCardComponent, HistorialModalComponent],
   templateUrl: './home.component.html',
 })
 export class HomeComponent implements OnInit {
@@ -22,6 +24,11 @@ export class HomeComponent implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
 
+  selectedSolicitud = signal<Solicitud | null>(null);
+  historial = signal<HistorialItem[]>([]);
+  historialLoading = signal(false);
+  historialError = signal<string | null>(null);
+
   ngOnInit(): void {
     this.solicitudesService.getSolicitudesEstudiante().subscribe({
       next: (data) => {
@@ -33,5 +40,27 @@ export class HomeComponent implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  openHistorial(solicitud: Solicitud): void {
+    this.selectedSolicitud.set(solicitud);
+    this.historial.set([]);
+    this.historialError.set(null);
+    this.historialLoading.set(true);
+
+    this.solicitudesService.getHistorialEstudiante(solicitud.id).subscribe({
+      next: (data) => {
+        this.historial.set(data);
+        this.historialLoading.set(false);
+      },
+      error: () => {
+        this.historialError.set('No se pudo cargar el historial.');
+        this.historialLoading.set(false);
+      },
+    });
+  }
+
+  closeHistorial(): void {
+    this.selectedSolicitud.set(null);
   }
 }

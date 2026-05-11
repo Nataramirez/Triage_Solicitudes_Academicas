@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Solicitud } from '../../../core/shared/models/solicitud.model';
 import { BadgeComponent, BadgeVariant } from '../../atoms/badge/badge.component';
@@ -11,6 +11,11 @@ import { BadgeComponent, BadgeVariant } from '../../atoms/badge/badge.component'
 })
 export class SolicitudCardComponent {
   solicitud = input.required<Solicitud>();
+  cardClick = output<Solicitud>();
+
+  onClick(): void {
+    this.cardClick.emit(this.solicitud());
+  }
 
   estadoVariant = computed((): BadgeVariant => {
     const map: Record<string, BadgeVariant> = {

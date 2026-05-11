@@ -12,8 +12,18 @@
   } @else {
     <div class="flex flex-col gap-3">
       @for (solicitud of solicitudes(); track solicitud.id) {
-        <app-solicitud-card [solicitud]="solicitud" />
+        <app-solicitud-card [solicitud]="solicitud" (cardClick)="openHistorial($event)" />
       }
     </div>
   }
 </main>
+
+@if (selectedSolicitud(); as sel) {
+  <app-historial-modal
+    [solicitud]="sel"
+    [items]="historial()"
+    [loading]="historialLoading()"
+    [error]="historialError()"
+    (closed)="closeHistorial()"
+  />
+}
