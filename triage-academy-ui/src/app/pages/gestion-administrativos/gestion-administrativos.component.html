@@ -3,8 +3,20 @@
   <div class="flex flex-1">
     <app-sidebar [items]="sidebarItems" />
     <main class="flex-1 p-6">
-      <section class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-        <h1 class="text-xl font-semibold text-slate-700">Gestión de administrativos</h1>
+      <section class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+        <header class="px-6 py-4 border-b border-slate-200">
+          <h1 class="text-xl font-semibold text-slate-700">Gestión de administrativos</h1>
+        </header>
+
+        @if (loading()) {
+          <p class="px-6 py-8 text-sm text-slate-500">Cargando administrativos...</p>
+        } @else if (error()) {
+          <p class="px-6 py-8 text-sm text-red-600">{{ error() }}</p>
+        } @else if (administrativos().length === 0) {
+          <p class="px-6 py-8 text-sm text-slate-500">No hay administrativos registrados.</p>
+        } @else {
+          <app-administrativos-table [administrativos]="administrativos()" />
+        }
       </section>
     </main>
   </div>
