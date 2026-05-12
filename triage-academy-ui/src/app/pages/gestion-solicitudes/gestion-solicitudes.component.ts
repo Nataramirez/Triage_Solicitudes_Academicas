@@ -14,7 +14,7 @@ import {
 import { SolicitudesService, SolicitudesQuery } from '../../core/services/solicitudes.service';
 import { AuthService } from '../../core/services/auth-service.service';
 import { NotificationService } from '../../core/services/notification.service';
-import { Solicitud, CrearSolicitudRequest } from '../../core/shared/models/solicitud.model';
+import { Solicitud } from '../../core/shared/models/solicitud.model';
 import { HistorialItem } from '../../core/shared/models/historial.model';
 import { NavItem } from '../../core/shared/models/nav.model';
 
@@ -84,18 +84,10 @@ export class GestionSolicitudesComponent implements OnInit {
   }
 
   onCreate(data: CrearSolicitudPayload): void {
-    const userId = this.auth.getUserId();
-    if (!userId) {
-      this.createError.set('No se pudo identificar el usuario.');
-      return;
-    }
-
     this.creating.set(true);
     this.createError.set(null);
 
-    const payload: CrearSolicitudRequest = { ...data, idUsuario: userId };
-
-    this.solicitudesService.crearSolicitud(payload).subscribe({
+    this.solicitudesService.crearSolicitud(data).subscribe({
       next: () => {
         this.creating.set(false);
         this.modalOpen.set(false);

@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { UsuarioResponse } from '../shared/models/auth.model';
@@ -12,6 +12,11 @@ export class UsuariosService {
 
   getAdministrativos(): Observable<UsuarioResponse[]> {
     return this.http.get<UsuarioResponse[]>(`${this.BASE_URL}/usuarios/administrativos`);
+  }
+
+  buscarEstudiantes(cedula: string): Observable<UsuarioResponse[]> {
+    const params = new HttpParams().set('cedula', cedula);
+    return this.http.get<UsuarioResponse[]>(`${this.BASE_URL}/usuarios/estudiantes`, { params });
   }
 
   crearAdministrativo(data: RegistrarAdministrativoRequest): Observable<UsuarioResponse> {

@@ -24,6 +24,73 @@
     </header>
 
     <form [formGroup]="form" (ngSubmit)="submit()" class="px-5 py-4 flex flex-col gap-4 overflow-y-auto">
+
+      <!-- Buscador de usuario por cédula -->
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-medium text-slate-700">Identificación del usuario solicitante</label>
+
+        @if (!estudianteSeleccionado()) {
+          <div class="flex gap-2">
+            <input
+              type="text"
+              [(ngModel)]="cedulaInput"
+              [ngModelOptions]="{ standalone: true }"
+              placeholder="Ingresa la cédula"
+              (keydown.enter)="buscarEstudiantes()"
+              class="flex-1 rounded-md px-3 py-2 text-sm border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+            />
+            <button
+              type="button"
+              (click)="buscarEstudiantes()"
+              [disabled]="buscando() || !cedulaInput.trim()"
+              class="px-3 py-2 text-sm font-medium text-white bg-slate-700 rounded-md hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
+            >
+              {{ buscando() ? 'Buscando...' : 'Buscar' }}
+            </button>
+          </div>
+
+          @if (buscarError()) {
+            <span class="text-red-500 text-xs">{{ buscarError() }}</span>
+          }
+
+          @if (sinResultados()) {
+            <span class="text-slate-500 text-xs">No se encontraron estudiantes con esa cédula.</span>
+          }
+
+          @if (resultados().length > 0) {
+            <div class="border border-slate-200 rounded-md divide-y divide-slate-100 max-h-40 overflow-y-auto">
+              @for (estudiante of resultados(); track estudiante.id) {
+                <button
+                  type="button"
+                  (click)="seleccionarEstudiante(estudiante)"
+                  class="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  {{ estudiante.identificacion }} - {{ estudiante.nombre }}
+                </button>
+              }
+            </div>
+          }
+        } @else {
+          <div class="flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-md">
+            <span class="text-sm text-slate-800 flex-1">
+              {{ estudianteSeleccionado()!.identificacion }} - {{ estudianteSeleccionado()!.nombre }}
+            </span>
+            <button
+              type="button"
+              (click)="limpiarSeleccion()"
+              class="text-slate-400 hover:text-slate-700 text-lg leading-none"
+              aria-label="Cambiar usuario"
+            >
+              &times;
+            </button>
+          </div>
+        }
+
+        @if (form.controls.idUsuario.touched && form.controls.idUsuario.hasError('required')) {
+          <span class="text-red-500 text-xs">Debes seleccionar un usuario</span>
+        }
+      </div>
+
       <div class="flex flex-col gap-1">
         <label class="text-sm font-medium text-slate-700">Tipo de solicitud</label>
         <app-select
