@@ -12,4 +12,6 @@ public interface UsuarioInterface {
 
     List<UsuarioResponse> listarAdministrativos();
 
+    List<UsuarioResponse> buscarEstudiantes(String cedula);
+
 }

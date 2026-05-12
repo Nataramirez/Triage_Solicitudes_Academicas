@@ -15,4 +15,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
 
     List<Usuario> findAllByRol(RolUsuario rol);
 
+    List<Usuario> findAllByRolAndIdentificacionStartingWith(RolUsuario rol, String identificacion);
+
 }

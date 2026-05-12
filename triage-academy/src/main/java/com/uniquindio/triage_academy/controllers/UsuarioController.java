@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -35,5 +36,12 @@ public class UsuarioController {
     @PreAuthorize("hasAuthority('DIRECTOR')")
     public ResponseEntity<List<UsuarioResponse>> listarAdministrativos() {
         return ResponseEntity.ok(usuarioService.listarAdministrativos());
+    }
+
+    @GetMapping("/estudiantes")
+    @PreAuthorize("hasAuthority('ADMINISTRATIVO') or hasAuthority('DIRECTOR')")
+    public ResponseEntity<List<UsuarioResponse>> buscarEstudiantes(
+            @RequestParam(required = false, defaultValue = "") String cedula) {
+        return ResponseEntity.ok(usuarioService.buscarEstudiantes(cedula));
     }
 }

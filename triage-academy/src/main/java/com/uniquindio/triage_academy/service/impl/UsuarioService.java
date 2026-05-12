@@ -64,6 +64,22 @@ public class UsuarioService implements UsuarioInterface {
         return administrativos;
     }
 
+    @Override
+    public List<UsuarioResponse> buscarEstudiantes(String cedula) {
+
+        log.info("@buscarEstudiantes SERV > Inicia búsqueda de estudiantes con cédula iniciando en: {}", cedula);
+
+        List<UsuarioResponse> estudiantes = usuarioRepository
+                .findAllByRolAndIdentificacionStartingWith(RolUsuario.ESTUDIANTE, cedula)
+                .stream()
+                .map(HelperMappers::toUsuarioResponse)
+                .toList();
+
+        log.info("@buscarEstudiantes SERV > Finaliza búsqueda de estudiantes. Total: {}", estudiantes.size());
+
+        return estudiantes;
+    }
+
     private void validarIdentificacionRegistro(String identificacion) throws CustomException {
 
         Optional<Usuario> usuarioIdentificacion = usuarioRepository.findByIdentificacion(identificacion);
