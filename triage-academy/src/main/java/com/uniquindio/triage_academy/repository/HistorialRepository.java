@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface HistorialRepository extends JpaRepository<HistorialSolicitud, UUID> {
-    List<HistorialSolicitud> findBySolicitudId(UUID solicitudId);
+    List<HistorialSolicitud> findBySolicitudIdOrderByFechaCreacionDesc(UUID solicitudId);
 }

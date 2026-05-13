@@ -27,7 +27,7 @@ public class SolicitudService implements SolicitudInterface {
     private final HistorialRepository historialRepository;
     private final UsuarioRepository usuarioRepository;
 
-    private static final Map<EstadoSolicitud, EstadoSolicitud> TRANSICIONES = Map.of(
+    private static final Map<EstadoSolicitud, EstadoSolicitud>  TRANSICIONES = Map.of(
             EstadoSolicitud.REGISTRADA, EstadoSolicitud.CLASIFICADA,
             EstadoSolicitud.CLASIFICADA, EstadoSolicitud.EN_ATENCION,
             EstadoSolicitud.EN_ATENCION, EstadoSolicitud.ATENDIDA
@@ -151,7 +151,7 @@ public class SolicitudService implements SolicitudInterface {
             throw new EntityNotFoundException("Solicitud no encontrada");
         }
 
-        return historialRepository.findBySolicitudId(id).stream()
+        return historialRepository.findBySolicitudIdOrderByFechaCreacionDesc(id).stream()
                 .map(this::toHistorialResponse)
                 .toList();
     }
@@ -165,7 +165,7 @@ public class SolicitudService implements SolicitudInterface {
             throw new CustomException(403, "No tienes permiso para ver el historial de esta solicitud", null);
         }
 
-        return historialRepository.findBySolicitudId(solicitudId).stream()
+        return historialRepository.findBySolicitudIdOrderByFechaCreacionDesc(solicitudId).stream()
                 .map(this::toHistorialResponse)
                 .toList();
     }

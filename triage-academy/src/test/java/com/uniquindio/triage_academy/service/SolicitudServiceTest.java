@@ -379,7 +379,7 @@ class SolicitudServiceTest {
         void obtenerHistorial_exitoso() {
             // Arrange
             when(solicitudRepository.existsById(solicitudId)).thenReturn(true);
-            when(historialRepository.findBySolicitudId(solicitudId)).thenReturn(List.of(historial));
+            when(historialRepository.findBySolicitudIdOrderByFechaCreacionDesc(solicitudId)).thenReturn(List.of(historial));
 
             // Act
             List<HistorialSolicitudResponse> response = solicitudService.obtenerHistorial(solicitudId);
@@ -391,7 +391,7 @@ class SolicitudServiceTest {
             assertThat(response.getFirst().getObservaciones()).isEqualTo("Solicitud registrada en el sistema");
 
             verify(solicitudRepository, times(1)).existsById(solicitudId);
-            verify(historialRepository, times(1)).findBySolicitudId(solicitudId);
+            verify(historialRepository, times(1)).findBySolicitudIdOrderByFechaCreacionDesc(solicitudId);
         }
 
         @Test
@@ -403,14 +403,14 @@ class SolicitudServiceTest {
                     .isInstanceOf(EntityNotFoundException.class)
                     .hasMessageContaining("Solicitud no encontrada");
 
-            verify(historialRepository, never()).findBySolicitudId(any());
+            verify(historialRepository, never()).findBySolicitudIdOrderByFechaCreacionDesc(any());
         }
 
         @Test
         @DisplayName("Retorna lista vacía si la solicitud existe pero no tiene historial")
         void obtenerHistorial_listaVacia() {
             when(solicitudRepository.existsById(solicitudId)).thenReturn(true);
-            when(historialRepository.findBySolicitudId(solicitudId)).thenReturn(List.of());
+            when(historialRepository.findBySolicitudIdOrderByFechaCreacionDesc(solicitudId)).thenReturn(List.of());
 
             List<HistorialSolicitudResponse> response = solicitudService.obtenerHistorial(solicitudId);
 
