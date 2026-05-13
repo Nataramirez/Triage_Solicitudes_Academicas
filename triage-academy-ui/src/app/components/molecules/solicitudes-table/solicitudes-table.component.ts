@@ -12,6 +12,7 @@ import { BadgeComponent, BadgeVariant } from '../../atoms/badge/badge.component'
 export class SolicitudesTableComponent {
   solicitudes = input.required<Solicitud[]>();
   viewHistorial = output<Solicitud>();
+  avanzarEstado = output<Solicitud>();
 
   estadoVariant(estado: string): BadgeVariant {
     const map: Record<string, BadgeVariant> = {

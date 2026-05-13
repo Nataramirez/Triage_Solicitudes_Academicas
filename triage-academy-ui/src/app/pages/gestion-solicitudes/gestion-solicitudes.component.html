@@ -30,6 +30,7 @@
           <app-solicitudes-table
             [solicitudes]="solicitudes()"
             (viewHistorial)="openHistorial($event)"
+            (avanzarEstado)="openCambiarEstado($event)"
           />
         }
       </section>
@@ -53,5 +54,15 @@
     [loading]="historialLoading()"
     [error]="historialError()"
     (closed)="closeHistorial()"
+  />
+}
+
+@if (solicitudParaEstado(); as sol) {
+  <app-cambiar-estado-modal
+    [solicitud]="sol"
+    [loading]="cambiandoEstado()"
+    [error]="cambioEstadoError()"
+    (closed)="closeCambiarEstado()"
+    (submitted)="onCambiarEstado($event)"
   />
 }

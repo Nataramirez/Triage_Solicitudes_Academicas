@@ -18,3 +18,12 @@ export interface CrearSolicitudRequest {
   descripcion: string;
   canalOrigen: string;
 }
+
+export interface CambiarEstadoRequest {
+  nuevoEstado: string;
+  observaciones?: string | null;
+}
+
+export interface CerrarSolicitudRequest {
+  observacionCierre: string;
+}

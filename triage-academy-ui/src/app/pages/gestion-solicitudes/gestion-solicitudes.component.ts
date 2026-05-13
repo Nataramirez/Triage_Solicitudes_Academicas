@@ -11,6 +11,7 @@ import {
   CrearSolicitudModalComponent,
   CrearSolicitudPayload,
 } from '../../components/organisms/crear-solicitud-modal/crear-solicitud-modal.component';
+import { CambiarEstadoModalComponent } from '../../components/organisms/cambiar-estado-modal/cambiar-estado-modal.component';
 import { SolicitudesService, SolicitudesQuery } from '../../core/services/solicitudes.service';
 import { AuthService } from '../../core/services/auth-service.service';
 import { NotificationService } from '../../core/services/notification.service';
@@ -28,6 +29,7 @@ import { NavItem } from '../../core/shared/models/nav.model';
     SolicitudesFiltersComponent,
     HistorialModalComponent,
     CrearSolicitudModalComponent,
+    CambiarEstadoModalComponent,
   ],
   templateUrl: './gestion-solicitudes.component.html',
 })
@@ -63,6 +65,10 @@ export class GestionSolicitudesComponent implements OnInit {
   modalOpen = signal(false);
   creating = signal(false);
   createError = signal<string | null>(null);
+
+  solicitudParaEstado = signal<Solicitud | null>(null);
+  cambiandoEstado = signal(false);
+  cambioEstadoError = signal<string | null>(null);
 
   ngOnInit(): void {
     this.loadSolicitudes();
@@ -121,6 +127,47 @@ export class GestionSolicitudesComponent implements OnInit {
 
   closeHistorial(): void {
     this.selectedSolicitud.set(null);
+  }
+
+  openCambiarEstado(solicitud: Solicitud): void {
+    this.cambioEstadoError.set(null);
+    this.solicitudParaEstado.set(solicitud);
+  }
+
+  closeCambiarEstado(): void {
+    this.solicitudParaEstado.set(null);
+    this.cambioEstadoError.set(null);
+  }
+
+  onCambiarEstado(observaciones: string): void {
+    const solicitud = this.solicitudParaEstado();
+    if (!solicitud) return;
+
+    this.cambiandoEstado.set(true);
+    this.cambioEstadoError.set(null);
+
+    const siguiente: Record<string, string> = {
+      REGISTRADA: 'CLASIFICADA',
+      CLASIFICADA: 'EN_ATENCION',
+      EN_ATENCION: 'ATENDIDA',
+    };
+
+    const operacion$ = solicitud.estado === 'ATENDIDA'
+      ? this.solicitudesService.cerrarSolicitud(solicitud.id, { observacionCierre: observaciones })
+      : this.solicitudesService.cambiarEstado(solicitud.id, { nuevoEstado: siguiente[solicitud.estado], observaciones });
+
+    operacion$.subscribe({
+      next: () => {
+        this.cambiandoEstado.set(false);
+        this.solicitudParaEstado.set(null);
+        this.notification.show('Estado actualizado correctamente', 'success');
+        this.loadSolicitudes();
+      },
+      error: (err: Error) => {
+        this.cambiandoEstado.set(false);
+        this.cambioEstadoError.set(err.message);
+      },
+    });
   }
 
   private loadSolicitudes(): void {

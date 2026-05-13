@@ -1,0 +1,86 @@
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="cambiar-estado-title"
+  (click)="onClose()"
+>
+  <div
+    class="bg-white rounded-lg shadow-lg border border-slate-200 w-full max-w-md flex flex-col"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="flex items-start justify-between gap-4 px-5 py-4 border-b border-slate-200">
+      <div>
+        <h3 id="cambiar-estado-title" class="text-sm font-semibold text-slate-800">
+          {{ esCierre() ? 'Cerrar solicitud' : 'Cambiar estado' }}
+        </h3>
+        <p class="text-xs text-slate-500 mt-0.5">{{ solicitud().tipo }}</p>
+      </div>
+      <button
+        type="button"
+        (click)="onClose()"
+        class="text-slate-400 hover:text-slate-700 text-xl leading-none focus:outline-none"
+        aria-label="Cerrar"
+      >
+        &times;
+      </button>
+    </header>
+
+    <div class="px-5 py-4 flex flex-col gap-4">
+
+      <div class="flex flex-col gap-1.5">
+        <span class="text-xs font-medium text-slate-500 uppercase tracking-wide">Transición de estado</span>
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-slate-600 font-medium">{{ solicitud().estado }}</span>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-slate-400 shrink-0" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+          <app-badge [text]="siguienteEstado()" [variant]="siguienteEstadoVariant()" />
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label for="observaciones-cambio" class="text-sm font-medium text-slate-700">
+          {{ esCierre() ? 'Observación de cierre' : 'Motivo del cambio de estado' }}
+        </label>
+        <textarea
+          id="observaciones-cambio"
+          [formControl]="observaciones"
+          rows="4"
+          [placeholder]="esCierre() ? 'Describe el resultado final de la solicitud...' : 'Describe el motivo del cambio de estado...'"
+          class="w-full rounded-md px-3 py-2 text-sm border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent resize-none"
+        ></textarea>
+        @if (observaciones.touched && observaciones.hasError('required')) {
+          <span class="text-red-500 text-xs">Este campo es obligatorio</span>
+        } @else if (observaciones.touched && observaciones.hasError('minlength')) {
+          <span class="text-red-500 text-xs">Mínimo 5 caracteres</span>
+        }
+      </div>
+
+      @if (error()) {
+        <p class="text-sm text-red-600">{{ error() }}</p>
+      }
+
+      <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-200">
+        <button
+          type="button"
+          (click)="onClose()"
+          class="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 transition-colors"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="submit()"
+          [disabled]="loading()"
+          [class]="(esCierre()
+            ? 'bg-red-600 hover:bg-red-700'
+            : 'bg-slate-700 hover:bg-slate-800') +
+            ' px-4 py-2 text-sm font-medium text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed'"
+        >
+          {{ loading() ? 'Guardando...' : (esCierre() ? 'Cerrar solicitud' : 'Cambiar estado') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
