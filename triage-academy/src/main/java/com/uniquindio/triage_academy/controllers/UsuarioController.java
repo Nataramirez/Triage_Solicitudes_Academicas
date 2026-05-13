@@ -39,7 +39,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/estudiantes")
-    @PreAuthorize("hasAuthority('ADMINISTRATIVO') or hasAuthority('DIRECTOR')")
+    @PreAuthorize("hasAnyAuthority('DIRECTOR', 'ADMINISTRATIVO')")
     public ResponseEntity<List<UsuarioResponse>> buscarEstudiantes(
             @RequestParam(required = false, defaultValue = "") String cedula) {
         return ResponseEntity.ok(usuarioService.buscarEstudiantes(cedula));

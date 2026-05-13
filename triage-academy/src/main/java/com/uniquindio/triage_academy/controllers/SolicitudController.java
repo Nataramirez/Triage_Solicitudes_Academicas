@@ -30,6 +30,7 @@ public class SolicitudController {
     private final SolicitudInterface solicitudService;
 
     @PostMapping
+    @PreAuthorize("hasAnyAuthority('DIRECTOR', 'ADMINISTRATIVO')")
     public ResponseEntity<SolicitudResponse> crear(
             @Valid @RequestBody CrearSolicitudRequest request) {
         SolicitudResponse response = solicitudService.crear(request);
@@ -44,6 +45,7 @@ public class SolicitudController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('DIRECTOR', 'ADMINISTRATIVO')")
     public ResponseEntity<List<SolicitudResponse>> listar(
             @RequestParam(required = false) EstadoSolicitud estado,
             @RequestParam(required = false) TipoSolicitud tipo,
@@ -53,11 +55,13 @@ public class SolicitudController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('DIRECTOR', 'ADMINISTRATIVO')")
     public ResponseEntity<SolicitudResponse> obtenerPorId(@PathVariable UUID id) {
         return ResponseEntity.ok(solicitudService.obtenerPorId(id));
     }
 
     @PatchMapping("/{id}/estado")
+    @PreAuthorize("hasAnyAuthority('DIRECTOR', 'ADMINISTRATIVO')")
     public ResponseEntity<Void> cambiarEstado(
             @PathVariable UUID id,
             @Valid @RequestBody CambiarEstadoRequest request) {
@@ -66,6 +70,7 @@ public class SolicitudController {
     }
 
     @PatchMapping("/{id}/cerrar")
+    @PreAuthorize("hasAnyAuthority('DIRECTOR', 'ADMINISTRATIVO')")
     public ResponseEntity<Void> cerrar(
             @PathVariable UUID id,
             @Valid @RequestBody CerrarSolicitudRequest request) {
@@ -74,6 +79,7 @@ public class SolicitudController {
     }
 
     @GetMapping("/{id}/historial")
+    @PreAuthorize("hasAnyAuthority('DIRECTOR', 'ADMINISTRATIVO')")
     public ResponseEntity<List<HistorialSolicitudResponse>> obtenerHistorial(
             @PathVariable UUID id) {
         return ResponseEntity.ok(solicitudService.obtenerHistorial(id));
