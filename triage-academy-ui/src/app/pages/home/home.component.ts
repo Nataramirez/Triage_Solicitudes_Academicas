@@ -1,8 +1,9 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { NavbarComponent } from '../../components/organisms/navbar/navbar.component';
 import { SolicitudCardComponent } from '../../components/molecules/solicitud-card/solicitud-card.component';
 import { HistorialModalComponent } from '../../components/organisms/historial-modal/historial-modal.component';
 import { SolicitudesService } from '../../core/services/solicitudes.service';
+import { AuthService } from '../../core/services/auth-service.service';
 import { Solicitud } from '../../core/shared/models/solicitud.model';
 import { HistorialItem } from '../../core/shared/models/historial.model';
 import { NavItem } from '../../core/shared/models/nav.model';
@@ -15,6 +16,10 @@ import { NavItem } from '../../core/shared/models/nav.model';
 })
 export class HomeComponent implements OnInit {
   private solicitudesService = inject(SolicitudesService);
+  private authService = inject(AuthService);
+
+  userName = this.authService.getUserName() ?? 'Estudiante';
+  userRole = 'Estudiante';
 
   navItems: NavItem[] = [
     { label: 'Inicio', route: '/home' },
@@ -23,6 +28,13 @@ export class HomeComponent implements OnInit {
   solicitudes = signal<Solicitud[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
+
+  enProcesoCount = computed(() =>
+    this.solicitudes().filter(s => s.estado === 'PENDIENTE' || s.estado === 'EN_REVISION').length
+  );
+  resueltasCount = computed(() =>
+    this.solicitudes().filter(s => s.estado === 'RESUELTA').length
+  );
 
   selectedSolicitud = signal<Solicitud | null>(null);
   historial = signal<HistorialItem[]>([]);

@@ -3,9 +3,54 @@
   <div class="flex flex-1">
     <app-sidebar [items]="sidebarItems" />
     <main class="flex-1 p-6">
-      <section class="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-        <h1 class="text-xl font-semibold text-slate-700">Bienvenido, Director</h1>
+
+      <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+        <div class="flex items-center gap-4 mb-4">
+          <div class="flex items-center justify-center w-14 h-14 rounded-full bg-violet-100 text-violet-600 text-2xl font-bold">
+            {{ userName.charAt(0).toUpperCase() }}
+          </div>
+          <div>
+            <h1 class="text-xl font-bold text-slate-800">Hola, {{ userName }}</h1>
+            <span class="inline-block mt-1 px-3 py-0.5 text-xs font-medium rounded-full bg-violet-100 text-violet-700">
+              {{ userRole }}
+            </span>
+          </div>
+        </div>
+        <p class="text-sm text-slate-500 leading-relaxed">
+          Bienvenido al <strong>Sistema de Triage de Solicitudes Academicas</strong>.
+          Como director, tienes acceso a la gestion del equipo administrativo.
+          Puedes crear, consultar y administrar los usuarios encargados de
+          atender las solicitudes de los estudiantes.
+        </p>
       </section>
+
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <a routerLink="/gestion-administrativos"
+           class="group bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:border-violet-300 hover:shadow-md transition-all">
+          <div class="flex items-center gap-4">
+            <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-violet-50 text-violet-600 text-xl group-hover:bg-violet-100 transition-colors">
+              👥
+            </div>
+            <div>
+              <h3 class="font-semibold text-slate-700 group-hover:text-violet-700 transition-colors">Gestion de administrativos</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Administra el equipo encargado de atender solicitudes</p>
+            </div>
+          </div>
+        </a>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <div class="flex items-center gap-4">
+            <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-slate-50 text-slate-400 text-xl">
+              🏛️
+            </div>
+            <div>
+              <h3 class="font-semibold text-slate-500">Panel de direccion</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Supervisa el funcionamiento general del sistema</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
 </div>

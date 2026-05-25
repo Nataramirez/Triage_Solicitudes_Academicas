@@ -47,6 +47,10 @@ export class AuthService {
     return localStorage.getItem('user_id');
   }
 
+  getUserName(): string | null {
+    return localStorage.getItem('user_name');
+  }
+
   getHomeRoute(): string {
     const role = this.getUserRole();
     if (role === 'ADMINISTRATIVO') return '/home-administrativo';
