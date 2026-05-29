@@ -2,14 +2,14 @@ FROM eclipse-temurin:21-jdk-alpine AS build
 
 WORKDIR /app
 
-COPY triage-academy/gradle ./gradle
-COPY triage-academy/gradlew .
-COPY triage-academy/build.gradle.kts .
-COPY triage-academy/settings.gradle.kts .
+COPY ./gradle ./gradle
+COPY ./gradlew .
+COPY ./build.gradle.kts .
+COPY ./settings.gradle.kts .
 RUN chmod +x gradlew
 RUN ./gradlew dependencies --no-daemon
 
-COPY triage-academy/src ./src
+COPY ./src ./src
 RUN ./gradlew bootJar -x test --no-daemon
 
 FROM eclipse-temurin:21-jre-alpine AS runtime
