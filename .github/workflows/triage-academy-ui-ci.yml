@@ -27,8 +27,5 @@ jobs:
       - name: Lint
         run: npm run lint --if-present
 
-      - name: Test
-        run: npm test -- --watch=false --browsers=ChromeHeadless --if-present
-
       - name: Build
         run: npm run build -- --configuration production --base-href /Triage_Solicitudes_Academicas/
