@@ -1,0 +1,68 @@
+<div class="min-h-screen flex flex-col bg-slate-100">
+  <app-navbar title="Panel Administrativo" [navItems]="navItems" />
+  <div class="flex flex-1">
+    <app-sidebar [items]="sidebarItems" />
+    <main class="flex-1 p-6">
+      <section class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+        <header class="flex items-center justify-between gap-4 px-6 py-4 border-b border-slate-200">
+          <h1 class="text-xl font-semibold text-slate-700">Gestión de solicitudes</h1>
+          <button
+            type="button"
+            (click)="openCreateModal()"
+            class="px-4 py-2 text-sm font-medium bg-slate-700 text-white rounded hover:bg-slate-800 transition-colors"
+          >
+            Crear solicitud
+          </button>
+        </header>
+
+        <app-solicitudes-filters
+          [filters]="filters()"
+          (filtersChange)="onFiltersChange($event)"
+        />
+
+        @if (loading()) {
+          <p class="px-6 py-8 text-sm text-slate-500">Cargando solicitudes...</p>
+        } @else if (error()) {
+          <p class="px-6 py-8 text-sm text-red-600">{{ error() }}</p>
+        } @else if (solicitudes().length === 0) {
+          <p class="px-6 py-8 text-sm text-slate-500">No se encontraron solicitudes.</p>
+        } @else {
+          <app-solicitudes-table
+            [solicitudes]="solicitudes()"
+            (viewHistorial)="openHistorial($event)"
+            (avanzarEstado)="openCambiarEstado($event)"
+          />
+        }
+      </section>
+    </main>
+  </div>
+</div>
+
+@if (modalOpen()) {
+  <app-crear-solicitud-modal
+    [loading]="creating()"
+    [error]="createError()"
+    (closed)="closeCreateModal()"
+    (submitted)="onCreate($event)"
+  />
+}
+
+@if (selectedSolicitud(); as sel) {
+  <app-historial-modal
+    [solicitud]="sel"
+    [items]="historial()"
+    [loading]="historialLoading()"
+    [error]="historialError()"
+    (closed)="closeHistorial()"
+  />
+}
+
+@if (solicitudParaEstado(); as sol) {
+  <app-cambiar-estado-modal
+    [solicitud]="sol"
+    [loading]="cambiandoEstado()"
+    [error]="cambioEstadoError()"
+    (closed)="closeCambiarEstado()"
+    (submitted)="onCambiarEstado($event)"
+  />
+}

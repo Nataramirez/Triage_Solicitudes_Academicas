@@ -22,16 +22,12 @@ public class RegistrarUsuarioRequest {
     @NotBlank(message = "La contraseña es requerida")
     private String contrasena;
 
-    @NotNull(message = "El rol es requerido")
-    private RolUsuario rol;
-
     @Override
     public String toString() {
         return "RegistrarUsuarioRequest{" +
                 "identificacion='" + identificacion + '\'' +
                 ", nombre='" + nombre + '\'' +
                 ", correo='" + correo + '\'' +
-                ", rol=" + rol +
                 '}';
     }
 }

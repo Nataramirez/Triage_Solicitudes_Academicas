@@ -1,0 +1,12 @@
+<div class="min-h-screen flex items-center justify-center bg-slate-100">
+  <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-8 w-full max-w-sm">
+    <h1 class="text-xl font-semibold text-slate-800 mb-6">Crear cuenta</h1>
+
+    <app-register-form [loading]="loading" (formSubmit)="onSubmit($event)" />
+
+    <p class="mt-4 text-sm text-center text-slate-500">
+      ¿Ya tienes cuenta?
+      <a routerLink="/login" class="text-slate-700 font-medium hover:text-slate-900 hover:underline">Inicia sesión</a>
+    </p>
+  </div>
+</div>

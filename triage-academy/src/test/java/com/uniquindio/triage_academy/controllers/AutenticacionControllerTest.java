@@ -106,7 +106,6 @@ class AutenticacionControllerTest {
             request.setNombre("Ana Torres");
             request.setCorreo(CORREO_VALIDO);
             request.setContrasena(CONTRASENA_VALIDA);
-            request.setRol(RolUsuario.ESTUDIANTE);
 
             when(authInterface.registrarUsuario(any())).thenReturn(mockAuthResponse);
 
@@ -124,8 +123,7 @@ class AutenticacionControllerTest {
                     registro.getIdentificacion().equals(request.getIdentificacion()) &&
                             registro.getNombre().equals(request.getNombre()) &&
                             registro.getCorreo().equals(request.getCorreo()) &&
-                            registro.getContrasena().equals(request.getContrasena()) &&
-                            registro.getRol() == request.getRol()
+                            registro.getContrasena().equals(request.getContrasena())
             ));
         }
 

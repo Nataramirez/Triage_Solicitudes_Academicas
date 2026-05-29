@@ -1,0 +1,36 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4">
+
+  <app-form-field
+    label="Nombre:"
+    inputId="nombre"
+    placeholder="Nombre completo"
+    patternError="Este campo debe contener únicamente letras"
+    [control]="form.controls.nombre"
+  />
+  <app-form-field
+    label="Identificación:"
+    inputId="identificacion"
+    placeholder="Numero de identificación"
+    [control]="form.controls.identificacion"
+  />
+  <app-form-field
+    label="Correo electrónico"
+    inputId="correo"
+    inputType="email"
+    placeholder="correo@ejemplo.com"
+    [control]="form.controls.correo"
+  />
+  <app-form-field
+    label="Contraseña"
+    inputId="contrasena"
+    inputType="password"
+    placeholder="••••••••"
+    [control]="form.controls.contrasena"
+  />
+
+  <div class="mt-15">
+    <app-button type="submit" [disabled]="loading() || form.invalid">
+      {{ loading() ? 'Registrando...' : 'Registrarse' }}
+    </app-button>
+  </div>
+</form>

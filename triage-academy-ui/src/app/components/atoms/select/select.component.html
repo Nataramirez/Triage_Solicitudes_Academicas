@@ -1,0 +1,10 @@
+<select
+  [value]="value()"
+  (change)="onChange($event)"
+  class="appearance-none min-w-[11rem] pl-3 pr-9 py-2 text-sm border border-slate-300 rounded-md bg-white text-slate-700 shadow-sm hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400 transition-colors cursor-pointer"
+>
+  <option value="">{{ placeholder() }}</option>
+  @for (option of options(); track option) {
+    <option [value]="option">{{ option }}</option>
+  }
+</select>

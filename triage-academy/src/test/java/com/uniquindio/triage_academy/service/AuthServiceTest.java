@@ -99,7 +99,6 @@ class AuthServiceTest {
             r.setNombre("Ana Torres");
             r.setCorreo("ana@uniquindio.edu.co");
             r.setContrasena("Secreta123*");
-            r.setRol(RolUsuario.ESTUDIANTE);
             return r;
         }
 

@@ -2,6 +2,7 @@ package com.uniquindio.triage_academy.service;
 
 import com.uniquindio.triage_academy.dto.request.*;
 import com.uniquindio.triage_academy.dto.response.*;
+import com.uniquindio.triage_academy.helpers.exception.CustomException;
 import com.uniquindio.triage_academy.model.enums.*;
 
 import java.util.List;
@@ -11,8 +12,10 @@ public interface SolicitudInterface {
     SolicitudResponse crear(CrearSolicitudRequest request);
     List<SolicitudResponse> listar(EstadoSolicitud estado, TipoSolicitud tipo,
                                    Prioridad prioridad, UUID idResponsable);
+    List<SolicitudResponse> listarSolicitudesUsuarioAutenticado(String usuarioId);
     SolicitudResponse obtenerPorId(UUID id);
     void cambiarEstado(UUID id, CambiarEstadoRequest request);
     void cerrar(UUID id, CerrarSolicitudRequest request);
     List<HistorialSolicitudResponse> obtenerHistorial(UUID id);
+    List<HistorialSolicitudResponse> obtenerHistorialSolicitud(UUID solicitudId, String usuarioId) throws CustomException;
 }

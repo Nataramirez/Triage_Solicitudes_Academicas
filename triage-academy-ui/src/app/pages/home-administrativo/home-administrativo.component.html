@@ -1,0 +1,80 @@
+<div class="min-h-screen flex flex-col bg-slate-100">
+  <app-navbar title="Panel Administrativo" [navItems]="navItems" />
+  <div class="flex flex-1">
+    <app-sidebar [items]="sidebarItems" />
+    <main class="flex-1 p-6">
+
+      <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+        <div class="flex items-center gap-4 mb-4">
+          <div class="flex items-center justify-center w-14 h-14 rounded-full bg-teal-100 text-teal-600 text-2xl font-bold">
+            {{ userName.charAt(0).toUpperCase() }}
+          </div>
+          <div>
+            <h1 class="text-xl font-bold text-slate-800">Hola, {{ userName }}</h1>
+            <span class="inline-block mt-1 px-3 py-0.5 text-xs font-medium rounded-full bg-teal-100 text-teal-700">
+              {{ userRole }}
+            </span>
+          </div>
+        </div>
+        <p class="text-sm text-slate-500 leading-relaxed">
+          Bienvenido al <strong>Sistema de Triage de Solicitudes Academicas</strong>.
+          Como administrativo, tu rol es gestionar y dar seguimiento a las solicitudes
+          de los estudiantes, clasificandolas y actualizando su estado para garantizar
+          una atencion oportuna y organizada.
+        </p>
+      </section>
+
+      <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        @if (loadingStats()) {
+          @for (_ of [1, 2, 3]; track $index) {
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 text-center animate-pulse">
+              <div class="h-8 w-12 bg-slate-200 rounded mx-auto mb-2"></div>
+              <div class="h-3 w-20 bg-slate-200 rounded mx-auto"></div>
+            </div>
+          }
+        } @else {
+          <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 text-center">
+            <div class="text-3xl font-bold text-teal-600">{{ solicitudes().length }}</div>
+            <div class="text-xs text-slate-500 mt-1">Solicitudes totales</div>
+          </div>
+          <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 text-center">
+            <div class="text-3xl font-bold text-amber-500">{{ asignadasCount() }}</div>
+            <div class="text-xs text-slate-500 mt-1">Asignadas</div>
+          </div>
+          <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 text-center">
+            <div class="text-3xl font-bold text-emerald-500">{{ resueltasCount() }}</div>
+            <div class="text-xs text-slate-500 mt-1">Resueltas</div>
+          </div>
+        }
+      </section>
+
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <a routerLink="/gestion-solicitudes"
+           class="group bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:border-teal-300 hover:shadow-md transition-all">
+          <div class="flex items-center gap-4">
+            <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-teal-50 text-teal-600 text-xl group-hover:bg-teal-100 transition-colors">
+              📝
+            </div>
+            <div>
+              <h3 class="font-semibold text-slate-700 group-hover:text-teal-700 transition-colors">Gestionar solicitudes</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Revisa, clasifica y actualiza el estado de las solicitudes</p>
+            </div>
+          </div>
+        </a>
+
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <div class="flex items-center gap-4">
+            <div class="flex items-center justify-center w-12 h-12 rounded-lg bg-slate-50 text-slate-400 text-xl">
+              📊
+            </div>
+            <div>
+              <h3 class="font-semibold text-slate-500">Resumen de actividad</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Gestiona las solicitudes desde el panel lateral</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
