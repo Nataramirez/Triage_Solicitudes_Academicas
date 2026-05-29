@@ -1,5 +1,8 @@
 # Sistema de Triage y Gestión de Solicitudes Académicas                                                                                                                                           
-API REST para la gestión del ciclo de vida de solicitudes académicas del Programa de Ingeniería de Sistemas y Computación.                                                                        
+API REST para la gestión del ciclo de vida de solicitudes académicas del Programa de Ingeniería de Sistemas y Computación.  
+
+[URL Aplicación](https://nataramirez.github.io/Triage_Solicitudes_Academicas)
+
 ## Tabla de contenidos                                                                                                                                                                      
 - [Contexto](#contexto)                                                                              
 - [Arquitectura y modelo de dominio](#arquitectura-y-modelo-de-dominio)                                                      
