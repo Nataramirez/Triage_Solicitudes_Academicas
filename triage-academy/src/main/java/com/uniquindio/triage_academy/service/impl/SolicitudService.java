@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -47,10 +48,12 @@ public class SolicitudService implements SolicitudInterface {
         Usuario usuario = usuarioRepository.findById(request.getIdUsuario())
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
         Prioridad prioridad = PRIORIDAD_POR_TIPO.get(request.getTipo());
+        Usuario responsable = asignarResponsablePorPrioridad(prioridad);
 
 
         Solicitud solicitud = new Solicitud();
         solicitud.setUsuario(usuario);
+        solicitud.setResponsable(responsable);
         solicitud.setTipo(request.getTipo());
         solicitud.setDescripcion(request.getDescripcion());
         solicitud.setCanalOrigen(request.getCanalOrigen());
@@ -63,6 +66,20 @@ public class SolicitudService implements SolicitudInterface {
         registrarHistorial(solicitud, "CREACION", "Solicitud registrada en el sistema");
 
         return toResponse(solicitud);
+    }
+
+    private Usuario asignarResponsablePorPrioridad(Prioridad prioridad) {
+        return usuarioRepository.findAllByRol(RolUsuario.ADMINISTRATIVO).stream()
+                .filter(Usuario::isActivo)
+                .min(Comparator
+                        .comparingLong((Usuario administrativo) ->
+                                solicitudRepository.countByResponsable_IdAndPrioridadAndEstadoNot(
+                                        administrativo.getId(),
+                                        prioridad,
+                                        EstadoSolicitud.CERRADA
+                                ))
+                        .thenComparing(Usuario::getNombre))
+                .orElseThrow(() -> new EntityNotFoundException("No hay responsables disponibles"));
     }
 
     @Override

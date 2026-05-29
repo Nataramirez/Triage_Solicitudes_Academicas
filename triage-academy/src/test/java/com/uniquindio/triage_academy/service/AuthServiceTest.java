@@ -1,4 +1,4 @@
-package com.uniquindio.triage_academy.service.impl;
+package com.uniquindio.triage_academy.service;
 
 import com.uniquindio.triage_academy.configuracion.seguridad.JwtService;
 import com.uniquindio.triage_academy.dto.request.LoginRequest;
@@ -9,6 +9,7 @@ import com.uniquindio.triage_academy.helpers.exception.CustomException;
 import com.uniquindio.triage_academy.model.entity.Usuario;
 import com.uniquindio.triage_academy.model.enums.RolUsuario;
 import com.uniquindio.triage_academy.repository.UsuarioRepository;
+import com.uniquindio.triage_academy.service.impl.AuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

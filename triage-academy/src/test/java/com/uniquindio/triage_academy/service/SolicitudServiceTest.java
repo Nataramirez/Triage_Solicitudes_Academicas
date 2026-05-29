@@ -123,6 +123,7 @@ class SolicitudServiceTest {
             CrearSolicitudRequest request = buildCrearRequest();
 
             when(usuarioRepository.findById(usuarioId)).thenReturn(Optional.of(usuario));
+            when(usuarioRepository.findAllByRol(RolUsuario.ADMINISTRATIVO)).thenReturn(List.of(responsable));
             when(solicitudRepository.save(any(Solicitud.class))).thenAnswer(invocation -> invocation.getArgument(0));
             when(historialRepository.save(any(HistorialSolicitud.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -135,8 +136,10 @@ class SolicitudServiceTest {
             assertThat(response.getTipo()).isEqualTo(TipoSolicitud.HOMOLOGACION);
             assertThat(response.getEstado()).isEqualTo(EstadoSolicitud.REGISTRADA);
             assertThat(response.getPrioridad()).isEqualTo(Prioridad.ALTA);
+            assertThat(response.getIdResponsable()).isEqualTo(responsableId);
 
             verify(usuarioRepository, times(1)).findById(usuarioId);
+            verify(usuarioRepository, times(1)).findAllByRol(RolUsuario.ADMINISTRATIVO);
             verify(solicitudRepository, times(1)).save(any(Solicitud.class));
             verify(historialRepository, times(1)).save(any(HistorialSolicitud.class));
         }
@@ -157,11 +160,28 @@ class SolicitudServiceTest {
         }
 
         @Test
+        @DisplayName("Lanza EntityNotFoundException si no hay responsables disponibles")
+        void crear_sinResponsablesDisponibles() {
+            CrearSolicitudRequest request = buildCrearRequest();
+
+            when(usuarioRepository.findById(usuarioId)).thenReturn(Optional.of(usuario));
+            when(usuarioRepository.findAllByRol(RolUsuario.ADMINISTRATIVO)).thenReturn(List.of());
+
+            assertThatThrownBy(() -> solicitudService.crear(request))
+                    .isInstanceOf(EntityNotFoundException.class)
+                    .hasMessageContaining("No hay responsables disponibles");
+
+            verify(solicitudRepository, never()).save(any());
+            verify(historialRepository, never()).save(any());
+        }
+
+        @Test
         @DisplayName("Asigna prioridad ALTA automáticamente para HOMOLOGACION")
         void crear_prioridadAsignadaAutomaticamente() {
             CrearSolicitudRequest request = buildCrearRequest(); // tipo = HOMOLOGACION
 
             when(usuarioRepository.findById(usuarioId)).thenReturn(Optional.of(usuario));
+            when(usuarioRepository.findAllByRol(RolUsuario.ADMINISTRATIVO)).thenReturn(List.of(responsable));
             when(solicitudRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
             when(historialRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
@@ -169,6 +189,42 @@ class SolicitudServiceTest {
 
             assertThat(response.getPrioridad()).isEqualTo(Prioridad.ALTA);
             assertThat(response.getJustificacionPrioridad()).contains("HOMOLOGACION");
+        }
+
+        @Test
+        @DisplayName("Asigna el administrativo con menos solicitudes abiertas de la misma prioridad")
+        void crear_responsableConMenorCargaPorPrioridad() {
+            CrearSolicitudRequest request = buildCrearRequest();
+            UUID responsableMenorCargaId = UUID.randomUUID();
+            Usuario responsableMenorCarga = Usuario.builder()
+                    .id(responsableMenorCargaId)
+                    .identificacion("1090000003")
+                    .nombre("Maria Ruiz")
+                    .correo("maria@uniquindio.edu.co")
+                    .contrasena("hash")
+                    .rol(RolUsuario.ADMINISTRATIVO)
+                    .activo(true)
+                    .build();
+
+            when(usuarioRepository.findById(usuarioId)).thenReturn(Optional.of(usuario));
+            when(usuarioRepository.findAllByRol(RolUsuario.ADMINISTRATIVO))
+                    .thenReturn(List.of(responsable, responsableMenorCarga));
+            when(solicitudRepository.countByResponsable_IdAndPrioridadAndEstadoNot(
+                    responsableId,
+                    Prioridad.ALTA,
+                    EstadoSolicitud.CERRADA
+            )).thenReturn(3L);
+            when(solicitudRepository.countByResponsable_IdAndPrioridadAndEstadoNot(
+                    responsableMenorCargaId,
+                    Prioridad.ALTA,
+                    EstadoSolicitud.CERRADA
+            )).thenReturn(1L);
+            when(solicitudRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+            when(historialRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            SolicitudResponse response = solicitudService.crear(request);
+
+            assertThat(response.getIdResponsable()).isEqualTo(responsableMenorCargaId);
         }
     }
 
