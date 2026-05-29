@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - 'triage-academy-ui/**'
-      - '.github/workflows/cd.yml'
+      - '.github/workflows/triage-academy-ui-cd.yml'
 
 permissions:
   contents: read
