@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - 'triage-academy-ui/**'
-      - '.github/workflows/ci.yml'
+      - '.github/workflows/triage-academy-ui-ci.yml'
 
 jobs:
   build-and-test:
