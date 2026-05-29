@@ -1,22 +1,72 @@
 <div class="min-h-screen bg-slate-100">
   <app-navbar title="Panel Estudiante" [navItems]="navItems" />
 
-  <main class="max-w-3xl mx-auto mt-8 px-4">
-    <h2 class="text-lg font-semibold text-slate-700 mb-4">Mis Solicitudes</h2>
+  <main class="max-w-4xl mx-auto mt-8 px-4 pb-10">
 
-    @if (loading()) {
-      <p class="text-sm text-slate-500">Cargando solicitudes...</p>
-    } @else if (error()) {
-      <p class="text-sm text-red-600">{{ error() }}</p>
-    } @else if (solicitudes().length === 0) {
-      <p class="text-sm text-slate-500">No tienes solicitudes registradas.</p>
-    } @else {
-      <div class="flex flex-col gap-3">
-        @for (solicitud of solicitudes(); track solicitud.id) {
-          <app-solicitud-card [solicitud]="solicitud" (cardClick)="openHistorial($event)" />
-        }
+    <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="flex items-center gap-4 mb-4">
+        <div class="flex items-center justify-center w-14 h-14 rounded-full bg-indigo-100 text-indigo-600 text-2xl font-bold">
+          {{ userName.charAt(0).toUpperCase() }}
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-slate-800">Hola, {{ userName }}</h1>
+          <span class="inline-block mt-1 px-3 py-0.5 text-xs font-medium rounded-full bg-indigo-100 text-indigo-700">
+            {{ userRole }}
+          </span>
+        </div>
       </div>
-    }
+      <p class="text-sm text-slate-500 leading-relaxed">
+        Bienvenido al <strong>Sistema de Triage de Solicitudes Academicas</strong>.
+        Desde aqui puedes crear, consultar y hacer seguimiento a tus solicitudes academicas.
+        Cada solicitud pasa por un proceso de clasificacion y revision para garantizar una atencion oportuna.
+      </p>
+    </section>
+
+    <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 text-center">
+        <div class="text-3xl font-bold text-indigo-600">{{ solicitudes().length }}</div>
+        <div class="text-xs text-slate-500 mt-1">Solicitudes totales</div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 text-center">
+        <div class="text-3xl font-bold text-amber-500">{{ enProcesoCount() }}</div>
+        <div class="text-xs text-slate-500 mt-1">En proceso</div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 text-center">
+        <div class="text-3xl font-bold text-emerald-500">{{ resueltasCount() }}</div>
+        <div class="text-xs text-slate-500 mt-1">Resueltas</div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-lg font-semibold text-slate-700 mb-4">Mis Solicitudes</h2>
+
+      @if (loading()) {
+        <div class="flex items-center gap-2 text-sm text-slate-500">
+          <svg class="animate-spin h-4 w-4 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+          Cargando solicitudes...
+        </div>
+      } @else if (error()) {
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-700">
+          {{ error() }}
+        </div>
+      } @else if (solicitudes().length === 0) {
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center">
+          <div class="text-4xl mb-3">📋</div>
+          <p class="text-slate-500 text-sm">No tienes solicitudes registradas.</p>
+          <p class="text-slate-400 text-xs mt-1">Cuando crees una solicitud, aparecera aqui.</p>
+        </div>
+      } @else {
+        <div class="flex flex-col gap-3">
+          @for (solicitud of solicitudes(); track solicitud.id) {
+            <app-solicitud-card [solicitud]="solicitud" (cardClick)="openHistorial($event)" />
+          }
+        </div>
+      }
+    </section>
+
   </main>
 </div>
 
